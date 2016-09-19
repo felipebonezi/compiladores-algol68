@@ -27,11 +27,15 @@ public class Scanner {
 	/**
 	 * Default constructor
 	 */
+	public Scanner(String file) {
+        this.file = new Arquivo(file);
+        this.line = 0;
+        this.column = 0;
+        this.currentChar = this.file.readChar();
+    }
+
 	public Scanner() {
-		this.file = new Arquivo(Properties.sourceCodeLocation);
-		this.line = 0;
-		this.column = 0;
-		this.currentChar = this.file.readChar();
+		this(Properties.sourceCodeLocation);
 	}
 
 	/**
@@ -167,7 +171,7 @@ public class Scanner {
 	 * Simulates the DFA that recognizes the language described by the lexical grammar
 	 * @return
 	 * @throws LexicalException
-	 */ //TODO
+	 */
 	private int scanToken() throws LexicalException {
 		int state = 0;
 		while (true) {
@@ -182,32 +186,29 @@ public class Scanner {
                     } else if(currentChar == '*' || currentChar == '/') {
                         state = 3;
                         getNextChar();
-                    } else if(currentChar == '>' || currentChar == '<') {
+                    } else if(currentChar == ',') {
                         state = 4;
                         getNextChar();
-                    } else if(currentChar == ',') {
+                    } else if(currentChar == '>' || currentChar == '<' || currentChar == '=' || currentChar == '!') {
                         state = 5;
                         getNextChar();
-                    } else if(currentChar == '=') {
+                    } else if(currentChar == ':') {
                         state = 6;
                         getNextChar();
-                    } else if(currentChar == ':') {
+                    } else if(currentChar == ')') {
                         state = 7;
                         getNextChar();
-                    } else if(currentChar == ')') {
+                    } else if(currentChar == '(') {
                         state = 8;
                         getNextChar();
-                    } else if(currentChar == '(') {
-                        state = 9;
-                        getNextChar();
                     } else if(currentChar == '\000') {
-                        state = 10;
+                        state = 9;
                         getNextChar();
                     } else{
                         if (isLetter(currentChar)) {
-                            state = 11;
+                            state = 10;
                         } else if (isDigit(currentChar)) {
-                            state = 12;
+                            state = 11;
                         } else {
                             throw new LexicalException("", currentChar, line, column);
                         }
@@ -227,45 +228,29 @@ public class Scanner {
                     return GrammarSymbols.COMMA;
 
                 case 5:
-                    switch (currentChar) {
-                    case '!':
-                        state = 5;
-                        break;
-
-                    case '>':
-                    case '<':
-                        state = 5;
-                        break;
-
-                    default:
-                        if (isDigit(currentChar) || isLetter(currentChar))
-                            state = 11;
-                        else
-                            return GrammarSymbols.EQUALS;
-                    }
-                    break;
-
-                case 6:
-                    return GrammarSymbols.TWO_DOTS;
-
-                case 7:
                     if (currentChar == '=') {
                         getNextChar();
-                        return GrammarSymbols.EQUALS;
+                    }
+                    return GrammarSymbols.OP_REL;
+
+                case 6:
+                    if (currentChar == '=') {
+                        getNextChar();
+                        return GrammarSymbols.ASSIGN;
                     } else {
                         return GrammarSymbols.TWO_DOTS;
                     }
 
-                case 8:
+                case 7:
                     return GrammarSymbols.R_PAR;
 
-                case 9:
+                case 8:
                     return GrammarSymbols.L_PAR;
 
-                case 10:
+                case 9:
                     return GrammarSymbols.EOT;
 
-                case 11:
+                case 10:
                     while (isLetter(currentChar) || isDigit(currentChar)) {
                         getNextChar();
                     }
@@ -275,7 +260,7 @@ public class Scanner {
                     else
                         return GrammarSymbols.ID;
 
-                case 12:
+                case 11:
                     while (isDigit(currentChar)) {
                         getNextChar();
                     }

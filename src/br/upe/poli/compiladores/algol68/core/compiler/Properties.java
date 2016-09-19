@@ -9,7 +9,10 @@ package br.upe.poli.compiladores.algol68.core.compiler;
  */
 public interface Properties {
 
+	public static final String PROGRAM_1 = "program1.alg";
+	public static final String PROGRAM_2 = "program2.alg";
+
 	// The source code file
-	public static final String sourceCodeLocation = "program1.alg";
-	
+	public static final String sourceCodeLocation = PROGRAM_1;
+
 }

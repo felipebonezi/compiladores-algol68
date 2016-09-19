@@ -1,5 +1,6 @@
 package br.upe.poli.compiladores.algol68;
 
+import br.upe.poli.compiladores.algol68.core.compiler.Properties;
 import br.upe.poli.compiladores.algol68.core.scanner.LexicalException;
 import br.upe.poli.compiladores.algol68.core.scanner.Scanner;
 import br.upe.poli.compiladores.algol68.core.scanner.Token;
@@ -9,13 +10,14 @@ public class Main {
 
     public static void main(String[] args) {
         // Implementação do código que será executado.
-        Scanner scanner = new Scanner();
+        Scanner scanner = new Scanner(Properties.PROGRAM_2);
 
         Token token;
         do {
             try {
                 token = scanner.getNextToken();
-                System.out.println(token.getSpelling());
+                String spelling = token.getSpelling();
+                System.out.println(String.format("Token: %s - Value: %s", spelling, token.getKind()));
             } catch (LexicalException e) {
                 e.printStackTrace();
                 token = null;

@@ -13,7 +13,7 @@ public class GrammarSymbols {
     public static final int OP_BASIC = 2;
     public static final int OP_FACTOR = 3;
     public static final int COMMA = 4;
-    public static final int EQUALS = 5;
+    public static final int ASSIGN = 5;
     public static final int TWO_DOTS = 6;
     public static final int R_PAR = 7;
     public static final int L_PAR = 8;
@@ -35,6 +35,7 @@ public class GrammarSymbols {
     public static final int PROC = 23;
     public static final int VOID = 24;
     public static final int RETURN = 25;
+    public static final int OP_REL = 26;
 
     public static final HashSet<String> PRIVATE_WORDS;
     public static final Hashtable<String, Integer> PRIVATE_WORDS_TOKENS;
@@ -84,7 +85,11 @@ public class GrammarSymbols {
     }
 
     public static int getTokenForPrivateWord(StringBuffer buffer) {
-        return PRIVATE_WORDS_TOKENS.get(buffer.toString().toLowerCase());
+        return getTokenForPrivateWord(buffer.toString());
+    }
+
+    public static int getTokenForPrivateWord(String text) {
+        return PRIVATE_WORDS_TOKENS.get(text.toLowerCase());
     }
 
 }
