@@ -37,11 +37,9 @@ public class Scanner {
 	/**
 	 * Returns the next token
 	 * @return
-	 */ //TODO
+	 */
 	public Token getNextToken() throws LexicalException {
-
-		while(this.currentChar == '#' || this.currentChar == ' ' ||
-				this.currentChar == '\n' || this.currentChar == '\t' ) {
+		while(isSeparator(this.currentChar)) {
 			this.scanSeparator();
 		}
 		this.currentSpelling = new StringBuffer("");
@@ -71,7 +69,7 @@ public class Scanner {
 	/**
 	 * Reads (and ignores) a separator
 	 * @throws LexicalException
-	 */ //TODO
+	 */
 	private void scanSeparator() throws LexicalException {
 		if(this.currentChar == '#'){
 			this.getNextChar();
@@ -172,87 +170,123 @@ public class Scanner {
 	 */ //TODO
 	private int scanToken() throws LexicalException {
 		int state = 0;
-		while(true){
-			switch(state){
-			case 0:
-				if(currentChar == ';'){
-					state = 1;
-					getNextToken();
-				}else if(currentChar == '+' || currentChar == '-'){
-					state = 2;
-					getNextToken();
-				}else if(currentChar == '*' || currentChar == '/'){
-					state = 3;
-					getNextToken();
-				}else if(currentChar == '>' || currentChar == '<'){
-					state = 4;
-					getNextToken();
-				}else if(currentChar == ','){
-					state = 5;
-					getNextToken();
-				}else if(currentChar == '='){
-					state = 6;
-					getNextToken();
-				}else if(currentChar == ':'){				
-					state = 7;
-					getNextToken();
-				}else if(currentChar == ')'){
-					state = 8;
-					getNextToken();
-				}else if(currentChar == '('){
-					state = 9;
-					getNextToken();
-				}else if(currentChar == '\000'){
-					state = 10;
-					getNextToken();
-				}else{
-					if (isLetter(currentChar)) {
-						state = 11;
-					} else if (isDigit(currentChar)) {
-						state = 12;
-					} else {
-						throw new LexicalException("", currentChar, line, column);
-					}		
-				}
+		while (true) {
+			switch (state) {
+                case 0:
+                    if(currentChar == ';') {
+                        state = 1;
+                        getNextChar();
+                    } else if(currentChar == '+' || currentChar == '-') {
+                        state = 2;
+                        getNextChar();
+                    } else if(currentChar == '*' || currentChar == '/') {
+                        state = 3;
+                        getNextChar();
+                    } else if(currentChar == '>' || currentChar == '<') {
+                        state = 4;
+                        getNextChar();
+                    } else if(currentChar == ',') {
+                        state = 5;
+                        getNextChar();
+                    } else if(currentChar == '=') {
+                        state = 6;
+                        getNextChar();
+                    } else if(currentChar == ':') {
+                        state = 7;
+                        getNextChar();
+                    } else if(currentChar == ')') {
+                        state = 8;
+                        getNextChar();
+                    } else if(currentChar == '(') {
+                        state = 9;
+                        getNextChar();
+                    } else if(currentChar == '\000') {
+                        state = 10;
+                        getNextChar();
+                    } else{
+                        if (isLetter(currentChar)) {
+                            state = 11;
+                        } else if (isDigit(currentChar)) {
+                            state = 12;
+                        } else {
+                            throw new LexicalException("", currentChar, line, column);
+                        }
+                    }
+                    break;
 
-			case 1:
-				return GrammarSymbols.SEMICOLON;
-			case 2: 
-				return GrammarSymbols.OP_BASIC;
-			case 3: 
-				return GrammarSymbols.OP_FACTOR;
-			case 4:
-				return GrammarSymbols.COMMA;
-			case 5:
-				switch (currentChar) {
-				case '!':
-				case '>':
-				case '<':
-					state = 9;
-					break;
-				default:
-					return GrammarSymbols.EQUALS;
-				}
-				break;
-			case 6:
-				return GrammarSymbols.TWO_DOTS;
-			case 8:
-				return GrammarSymbols.R_PAR;
-			case 9:
-				return GrammarSymbols.L_PAR;
-			case 10:
-				return GrammarSymbols.EOT;
-			case 11:
-				while(isLetter(currentChar) || isDigit(currentChar)){
-					getNextChar();
-				}
+                case 1:
+                    return GrammarSymbols.SEMICOLON;
 
-				String name = currentSpelling.toString();
-				name = name.toLowerCase();
-				return GrammarSymbols.ID;
+                case 2:
+                    return GrammarSymbols.OP_BASIC;
+
+                case 3:
+                    return GrammarSymbols.OP_FACTOR;
+
+                case 4:
+                    return GrammarSymbols.COMMA;
+
+                case 5:
+                    switch (currentChar) {
+                    case '!':
+                        state = 5;
+                        break;
+
+                    case '>':
+                    case '<':
+                        state = 5;
+                        break;
+
+                    default:
+                        if (isDigit(currentChar) || isLetter(currentChar))
+                            state = 11;
+                        else
+                            return GrammarSymbols.EQUALS;
+                    }
+                    break;
+
+                case 6:
+                    return GrammarSymbols.TWO_DOTS;
+
+                case 7:
+                    if (currentChar == '=') {
+                        getNextChar();
+                        return GrammarSymbols.EQUALS;
+                    } else {
+                        return GrammarSymbols.TWO_DOTS;
+                    }
+
+                case 8:
+                    return GrammarSymbols.R_PAR;
+
+                case 9:
+                    return GrammarSymbols.L_PAR;
+
+                case 10:
+                    return GrammarSymbols.EOT;
+
+                case 11:
+                    while (isLetter(currentChar) || isDigit(currentChar)) {
+                        getNextChar();
+                    }
+
+                    if (GrammarSymbols.isPrivateWord(currentSpelling))
+                        return GrammarSymbols.getTokenForPrivateWord(currentSpelling);
+                    else
+                        return GrammarSymbols.ID;
+
+                case 12:
+                    while (isDigit(currentChar)) {
+                        getNextChar();
+                    }
+                    return GrammarSymbols.ID;
+
+                case 99:
+                    throw new LexicalException("Aconteceu um erro léxico na gramática.", this.currentChar, this.line, this.column);
+
+                default:
+                    break;
 			}
 		}
 	}
 }
-	
-	
