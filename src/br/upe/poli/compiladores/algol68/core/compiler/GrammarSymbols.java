@@ -8,7 +8,7 @@ package parser;
  * @author Gustavo H P Carvalho
  * @email gustavohpcarvalho@ecomp.poli.br
  */
-public class GrammarSymbols {
+public class GrammarSymbols { 
 
 	// Language terminals (starts from 0)
 	public static final int ID = 0;
