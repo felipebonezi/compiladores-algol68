@@ -1,10 +1,8 @@
-package scanner;
+package br.upe.poli.compiladores.algol68.core.scanner;
 
-import compiler.Properties;
-import compiler.Compiler;
-
-import parser.GrammarSymbols;
-import util.Arquivo;
+import br.upe.poli.compiladores.algol68.core.compiler.Properties;
+import br.upe.poli.compiladores.algol68.core.util.Arquivo;
+import br.upe.poli.compiladores.algol68.helpers.GrammarSymbols;
 
 /**
  * Scanner class
@@ -30,7 +28,7 @@ public class Scanner {
 	 * Default constructor
 	 */
 	public Scanner() {
-		this.file = new Arquivo(Properties.sourceCodeLocation);		
+		this.file = new Arquivo(Properties.sourceCodeLocation);
 		this.line = 0;
 		this.column = 0;
 		this.currentChar = this.file.readChar();
@@ -218,13 +216,13 @@ public class Scanner {
 				}
 
 			case 1:
-				return GrammarSymbols.getSemicolon();
+				return GrammarSymbols.SEMICOLON;
 			case 2: 
-				return GrammarSymbols.getOpBasic();
+				return GrammarSymbols.OP_BASIC;
 			case 3: 
-				return GrammarSymbols.getOpFactor();
+				return GrammarSymbols.OP_FACTOR;
 			case 4:
-				return GrammarSymbols.getComma();
+				return GrammarSymbols.COMMA;
 			case 5:
 				switch (currentChar) {
 				case '!':
@@ -233,17 +231,17 @@ public class Scanner {
 					state = 9;
 					break;
 				default:
-					return GrammarSymbols.getEquals();
+					return GrammarSymbols.EQUALS;
 				}
 				break;
 			case 6:
-				return GrammarSymbols.getTwoDots();
+				return GrammarSymbols.TWO_DOTS;
 			case 8:
-				return GrammarSymbols.getRpar();
+				return GrammarSymbols.R_PAR;
 			case 9:
-				return GrammarSymbols.getLpar();
+				return GrammarSymbols.L_PAR;
 			case 10:
-				return GrammarSymbols.getEot();			
+				return GrammarSymbols.EOT;
 			case 11:
 				while(isLetter(currentChar) || isDigit(currentChar)){
 					getNextChar();
@@ -251,11 +249,7 @@ public class Scanner {
 
 				String name = currentSpelling.toString();
 				name = name.toLowerCase();
-				if( keywords.containsKey(name) )
-					return keywords.get(name).ordinal();
-
-				return GrammarSymbols.ID.ordinal();
-
+				return GrammarSymbols.ID;
 			}
 		}
 	}
