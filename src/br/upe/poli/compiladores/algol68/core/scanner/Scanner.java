@@ -1,7 +1,10 @@
-package br.upe.poli.compiladores.algol68.core.scanner;
+package scanner;
 
-import br.upe.poli.compiladores.algol68.core.compiler.Properties;
-import br.upe.poli.compiladores.algol68.core.util.Arquivo;
+import compiler.Properties;
+import compiler.Compiler;
+
+import parser.GrammarSymbols;
+import util.Arquivo;
 
 /**
  * Scanner class
@@ -22,7 +25,7 @@ public class Scanner {
 	private StringBuffer currentSpelling;
 	// Current line and column in the source file
 	private int line, column;
-	
+
 	/**
 	 * Default constructor
 	 */
@@ -32,20 +35,28 @@ public class Scanner {
 		this.column = 0;
 		this.currentChar = this.file.readChar();
 	}
-	
+
 	/**
 	 * Returns the next token
 	 * @return
 	 */ //TODO
-	public Token getNextToken() {
-			// Initializes the string buffer
-			// Ignores separators
-			// Clears the string buffer
-			// Scans the next token
+	public Token getNextToken() throws LexicalException {
+
+		while(this.currentChar == '#' || this.currentChar == ' ' ||
+				this.currentChar == '\n' || this.currentChar == '\t' ) {
+			this.scanSeparator();
+		}
+		this.currentSpelling = new StringBuffer("");
+		this.currentKind = this.scanToken();
+
+		return new Token(currentKind, currentSpelling.toString(), this.line, this.column);
+
+		// Ignores separators
+		// Clears the string buffer
+		// Scans the next token
 		// Creates and returns a token for the lexema identified
-		return null;
 	}
-	
+
 	/**
 	 * Returns if a character is a separator
 	 * @param c
@@ -58,30 +69,44 @@ public class Scanner {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Reads (and ignores) a separator
 	 * @throws LexicalException
 	 */ //TODO
 	private void scanSeparator() throws LexicalException {
+		if(this.currentChar == '#'){
+			this.getNextChar();
+			while(this.isGraphic(this.currentChar)){
+				this.getNextChar();
+				while (currentChar != '\n') {
+					getNextChar();
+				}
+			}
+		}else{
+			this.getNextChar();
+		}
 		// If it is a comment line
-			// Gets next char
-			// Reads characters while they are graphics or '\t'
-			// A command line should finish with a \n
+		// Gets next char
+		// Reads characters while they are graphics or '\t'
+		// A command line should finish with a \n
 	}
-	
+
 	/**
 	 * Gets the next char
 	 */
-	private void getNextChar() {
+	private void getNextChar() throws LexicalException {
 		// Appends the current char to the string buffer
-		this.currentSpelling.append(this.currentChar);
-		// Reads the next one
-		this.currentChar = this.file.readChar();
-		// Increments the line and column
-		this.incrementLineColumn();
+
+		if (currentSpelling != null) {
+			this.currentSpelling.append(this.currentChar);
+			// Reads the next one
+			this.currentChar = this.file.readChar();
+			// Increments the line and column
+			this.incrementLineColumn();
+		}
 	}
-	
+
 	/**
 	 * Increments line and column
 	 */
@@ -90,18 +115,18 @@ public class Scanner {
 		if ( this.currentChar == '\n' ) {
 			this.line++;
 			this.column = 0;
-		// If the char read is not a '\n' 
+			// If the char read is not a '\n' 
 		} else {
 			// If it is a '\t', increments the column by 4
 			if ( this.currentChar == '\t' ) {
 				this.column = this.column + 4;
-			// If it is not a '\t', increments the column by 1
+				// If it is not a '\t', increments the column by 1
 			} else {
 				this.column++;
 			}
 		}
 	}
-	
+
 	/**
 	 * Returns if a char is a digit (between 0 and 9)
 	 * @param c
@@ -114,7 +139,7 @@ public class Scanner {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Returns if a char is a letter (between a and z or between A and Z)
 	 * @param c
@@ -127,7 +152,7 @@ public class Scanner {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Returns if a char is a graphic (any ASCII visible character)
 	 * @param c
@@ -140,7 +165,7 @@ public class Scanner {
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Scans the next token
 	 * Simulates the DFA that recognizes the language described by the lexical grammar
@@ -148,9 +173,92 @@ public class Scanner {
 	 * @throws LexicalException
 	 */ //TODO
 	private int scanToken() throws LexicalException {
-		// The initial automata state is 0
-		// While loop to simulate the automata
-		return -1;
+		int state = 0;
+		while(true){
+			switch(state){
+			case 0:
+				if(currentChar == ';'){
+					state = 1;
+					getNextToken();
+				}else if(currentChar == '+' || currentChar == '-'){
+					state = 2;
+					getNextToken();
+				}else if(currentChar == '*' || currentChar == '/'){
+					state = 3;
+					getNextToken();
+				}else if(currentChar == '>' || currentChar == '<'){
+					state = 4;
+					getNextToken();
+				}else if(currentChar == ','){
+					state = 5;
+					getNextToken();
+				}else if(currentChar == '='){
+					state = 6;
+					getNextToken();
+				}else if(currentChar == ':'){				
+					state = 7;
+					getNextToken();
+				}else if(currentChar == ')'){
+					state = 8;
+					getNextToken();
+				}else if(currentChar == '('){
+					state = 9;
+					getNextToken();
+				}else if(currentChar == '\000'){
+					state = 10;
+					getNextToken();
+				}else{
+					if (isLetter(currentChar)) {
+						state = 11;
+					} else if (isDigit(currentChar)) {
+						state = 12;
+					} else {
+						throw new LexicalException("", currentChar, line, column);
+					}		
+				}
+
+			case 1:
+				return GrammarSymbols.getSemicolon();
+			case 2: 
+				return GrammarSymbols.getOpBasic();
+			case 3: 
+				return GrammarSymbols.getOpFactor();
+			case 4:
+				return GrammarSymbols.getComma();
+			case 5:
+				switch (currentChar) {
+				case '!':
+				case '>':
+				case '<':
+					state = 9;
+					break;
+				default:
+					return GrammarSymbols.getEquals();
+				}
+				break;
+			case 6:
+				return GrammarSymbols.getTwoDots();
+			case 8:
+				return GrammarSymbols.getRpar();
+			case 9:
+				return GrammarSymbols.getLpar();
+			case 10:
+				return GrammarSymbols.getEot();			
+			case 11:
+				while(isLetter(currentChar) || isDigit(currentChar)){
+					getNextChar();
+				}
+
+				String name = currentSpelling.toString();
+				name = name.toLowerCase();
+				if( keywords.containsKey(name) )
+					return keywords.get(name).ordinal();
+
+				return GrammarSymbols.ID.ordinal();
+
+			}
+		}
 	}
-	
 }
+	
+	
