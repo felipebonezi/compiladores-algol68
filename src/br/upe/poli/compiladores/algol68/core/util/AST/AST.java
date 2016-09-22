@@ -18,6 +18,6 @@ public abstract class AST {
 		return str.toString();
 	}
 	
-	public abstract String toString(int level);
+//	public abstract String toString(int level);
 	
 }

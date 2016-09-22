@@ -75,7 +75,7 @@ public class Scanner {
 	 * @throws LexicalException
 	 */
 	private void scanSeparator() throws LexicalException {
-		if(this.currentChar == '#'){
+		if(this.currentChar == '#'){ // TIRAR O HASH DA GRAMÄTICA NO FINAL.
 			this.getNextChar();
 			while(this.isGraphic(this.currentChar)){
 				this.getNextChar();
@@ -264,7 +264,7 @@ public class Scanner {
                     while (isDigit(currentChar)) {
                         getNextChar();
                     }
-                    return GrammarSymbols.ID;
+                    return GrammarSymbols.NUMBER;
 
                 case 99:
                     throw new LexicalException("Aconteceu um erro léxico na gramática.", this.currentChar, this.line, this.column);

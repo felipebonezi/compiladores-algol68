@@ -36,6 +36,9 @@ public class GrammarSymbols {
     public static final int VOID = 24;
     public static final int RETURN = 25;
     public static final int OP_REL = 26;
+    public static final int NUMBER = 27;
+    public static final int TRUE = 28;
+    public static final int FALSE = 29;
 
     public static final HashSet<String> PRIVATE_WORDS;
     public static final Hashtable<String, Integer> PRIVATE_WORDS_TOKENS;
@@ -59,6 +62,9 @@ public class GrammarSymbols {
         PRIVATE_WORDS.add("proc");
         PRIVATE_WORDS.add("void");
         PRIVATE_WORDS.add("return");
+        PRIVATE_WORDS.add("bool");
+        PRIVATE_WORDS.add("true");
+        PRIVATE_WORDS.add("false");
 
         PRIVATE_WORDS_TOKENS = new Hashtable<>();
         PRIVATE_WORDS_TOKENS.put("int", INT);
@@ -78,6 +84,9 @@ public class GrammarSymbols {
         PRIVATE_WORDS_TOKENS.put("proc", PROC);
         PRIVATE_WORDS_TOKENS.put("void", VOID);
         PRIVATE_WORDS_TOKENS.put("return", RETURN);
+        PRIVATE_WORDS_TOKENS.put("bool", BOOL);
+        PRIVATE_WORDS_TOKENS.put("true", TRUE);
+        PRIVATE_WORDS_TOKENS.put("false", FALSE);
     }
 
     public static boolean isPrivateWord(StringBuffer buffer) {

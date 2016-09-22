@@ -5,6 +5,12 @@ BEGIN
     b := 3;
 
     # Somatório das variáveis #
-    INT sum = a + (b + c);
+    INT sum := a + (b + c);
+
+    bool checker := true;
+
+    IF checker = true
+    THEN checker = false
+    FI;
 
 END
