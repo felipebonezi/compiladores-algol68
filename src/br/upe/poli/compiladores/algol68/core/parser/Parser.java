@@ -147,7 +147,7 @@ public class Parser {
 				}
 			}while (kind == COMMA && acceptIt());
             accept(GrammarSymbols.R_PAR);
-		}
+		}afs
 
 		accept(TWO_DOTS);
         accept(BEGIN);
