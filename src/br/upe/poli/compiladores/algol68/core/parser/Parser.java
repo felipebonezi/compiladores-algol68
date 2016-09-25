@@ -8,6 +8,7 @@ import br.upe.poli.compiladores.algol68.core.util.AST.ASTDecCmd;
 import br.upe.poli.compiladores.algol68.core.util.AST.ASTDecFunc;
 import br.upe.poli.compiladores.algol68.core.util.AST.ASTDecVarFunc;
 import br.upe.poli.compiladores.algol68.helpers.GrammarSymbols;
+import com.sun.deploy.security.ValidationState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ public class Parser {
 	private Token currentToken = null;
 	// The scanner
 	private Scanner scanner = null;
-	
+
 	/**
 	 * Parser constructor
 	 */
@@ -35,9 +36,10 @@ public class Parser {
 		// Initializes the scanner object
 		this.scanner = new Scanner();
 	}
-	
+
 	/**
 	 * Veririfes if the current token kind is the expected one
+	 *
 	 * @param kind
 	 * @throws SyntacticException
 	 * @throws LexicalException
@@ -48,13 +50,13 @@ public class Parser {
 				|| currentToken != null && currentToken.getKind() == kind) {
 			// Gets next token
 			this.currentToken = this.scanner.getNextToken();
-		// If not
+			// If not
 		} else {
 			// Raises an exception
 			throw new SyntacticException("Deu gueba!!!!", this.currentToken);
 		}
 	}
-	
+
 	/**
 	 * Gets next token
 	 */ //TODO
@@ -64,6 +66,7 @@ public class Parser {
 
 	/**
 	 * Verifies if the source program is syntactically correct
+	 *
 	 * @throws SyntacticException
 	 * @throws LexicalException
 	 */ //TODO
@@ -84,35 +87,101 @@ public class Parser {
 	}
 
 	private ASTDecCmd parseCmd() throws LexicalException, SyntacticException {
-        List<ASTDecVarFunc> decs = new ArrayList<>();
+		List<ASTDecVarFunc> decs = new ArrayList<>();
 
-        ASTDecVarFunc decVarFunc;
-        while (this.currentToken.getKind() != EOT) {
-            decVarFunc = parseDecVarFunc();
-            decs.add(decVarFunc);
-        }
+		ASTDecVarFunc decVarFunc;
+		while (this.currentToken.getKind() != EOT) {
+			decVarFunc = parseDecVarFunc();
+			decs.add(decVarFunc);
+		}
 		return new ASTDecCmd(decs);
 	}
 
-    private ASTDecVarFunc parseDecVarFunc() throws LexicalException, SyntacticException {
-        ASTDecVarFunc decVarFunc = null;
+	private ASTDecVarFunc parseDecVarFunc() throws LexicalException, SyntacticException {
+		ASTDecVarFunc decVarFunc = null;
 
-        // dec_func
+		// dec_func
+		int kind = this.currentToken.getKind();
+		if (kind == PROC) {
+			decVarFunc = parseDecVar();
+		} else if (kind == INT || kind == BOOL) {
+			decVarFunc = parseDecFunc();
+		} else {
+			error("Você não inicializou nenhuma variável ou função - i.e. (dec_cmd ::= (dec_var; | dec_func;)*)");
+		}
+
+		return decVarFunc;
+	}
+
+	private ASTDecVarFunc parseDecFunc() throws SyntacticException, LexicalException {
+
+        ASTDecFunc decFunc = null;
+//		dec_func ::= PROC identifier = (dec_param?)  (var_type | VOID) : BEGIN dec_bodies END
+		int kind = this.currentToken.getKind();
+		ArrayList<TType> argsType = new ArrayList<TType>();
+		ArrayList<TID> argsId = new ArrayList<TID>();
+
+
+		if (Kind == ID) {
+			name = new TID(currentToken.getSpelling());
+		} else {
+			error("Nao ha um id");
+		}
+
+		accept(ASSIGN);
+		accept(L_PAR);
+		if (kind == R_PAR) {
+			acceptIt();
+		} else {
+			do {
+				if (kind == args) {
+					argsType.add(new TT);
+				} else {
+					error("erro");
+				}
+
+				if (kind == ID) {
+					argsId.add(new TID(currentToken.getSpelling()));
+				} else {
+					error("erro");
+				}
+			}while (kind == COMMA && acceptIt());
+            accept(GrammarSymbols.R_PAR);
+		}
+
+		accept(TWO_DOTS);
+        accept(BEGIN);
+        ASTDecFunc = parseDecBodies();
+        accept(END);
+
+
+
+	}
+
+
+	private ASTDecVarFunc parseDecVar() throws SyntacticException, LexicalException {
+
+        ArrayList<TID> id = new ArrayList<TID>();
         int kind = this.currentToken.getKind();
-        if (kind == PROC) {
-            decVarFunc = parseDecFunc();
-        } else if (kind == INT || kind == BOOL) {
 
-        } else {
-            throw new SyntacticException("Você não inicializou nenhuma variável ou função - i.e. (dec_cmd ::= (dec_var; | dec_func;)*)", this.currentToken);
+
+        return null;
+	}
+
+    private Command parseDecBodies() throws SyntacticException, LexicalException {
+
+        Command command = null;
+        int kind = this.currentToken.getKind();
+
+        do {
+            if (kind == )
         }
 
-        return decVarFunc;
+
+        return null;
     }
 
-    private ASTDecVarFunc parseDecFunc() {
-        ASTDecFunc decFunc = null;
-        return decFunc;
-    }
-
+	private void error(String name) throws SyntacticException {
+		throw new SyntacticException(name, currentToken);
+	}
 }
