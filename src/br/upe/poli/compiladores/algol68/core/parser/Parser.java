@@ -27,7 +27,7 @@ public class Parser {
 	private Token currentToken = null;
 	// The scanner
 	private Scanner scanner = null;
-	
+
 	/**
 	 * Parser constructor
 	 */
@@ -35,9 +35,10 @@ public class Parser {
 		// Initializes the scanner object
 		this.scanner = new Scanner();
 	}
-	
+
 	/**
 	 * Veririfes if the current token kind is the expected one
+	 *
 	 * @param kind
 	 * @throws SyntacticException
 	 * @throws LexicalException
@@ -48,13 +49,13 @@ public class Parser {
 				|| currentToken != null && currentToken.getKind() == kind) {
 			// Gets next token
 			this.currentToken = this.scanner.getNextToken();
-		// If not
+			// If not
 		} else {
 			// Raises an exception
 			throw new SyntacticException("Deu gueba!!!!", this.currentToken);
 		}
 	}
-	
+
 	/**
 	 * Gets next token
 	 */ //TODO
@@ -64,6 +65,7 @@ public class Parser {
 
 	/**
 	 * Verifies if the source program is syntactically correct
+	 *
 	 * @throws SyntacticException
 	 * @throws LexicalException
 	 */ //TODO
@@ -84,35 +86,80 @@ public class Parser {
 	}
 
 	private ASTDecCmd parseCmd() throws LexicalException, SyntacticException {
-        List<ASTDecVarFunc> decs = new ArrayList<>();
+		List<ASTDecVarFunc> decs = new ArrayList<>();
 
-        ASTDecVarFunc decVarFunc;
-        while (this.currentToken.getKind() != EOT) {
-            decVarFunc = parseDecVarFunc();
-            decs.add(decVarFunc);
-        }
+		ASTDecVarFunc decVarFunc;
+		while (this.currentToken.getKind() != EOT) {
+			decVarFunc = parseDecVarFunc();
+			decs.add(decVarFunc);
+		}
 		return new ASTDecCmd(decs);
 	}
 
-    private ASTDecVarFunc parseDecVarFunc() throws LexicalException, SyntacticException {
-        ASTDecVarFunc decVarFunc = null;
+	private ASTDecVarFunc parseDecVarFunc() throws LexicalException, SyntacticException {
+		ASTDecVarFunc decVarFunc = null;
 
-        // dec_func
-        int kind = this.currentToken.getKind();
-        if (kind == PROC) {
-            decVarFunc = parseDecFunc();
-        } else if (kind == INT || kind == BOOL) {
+		// dec_func
+		int kind = this.currentToken.getKind();
+		if (kind == PROC) {
+			decVarFunc = parseDecVar();
+		} else if (kind == INT || kind == BOOL) {
+			decVarFunc = parseDecFunc();
+		} else {
+			error("Você não inicializou nenhuma variável ou função - i.e. (dec_cmd ::= (dec_var; | dec_func;)*)");
+		}
 
-        } else {
-            throw new SyntacticException("Você não inicializou nenhuma variável ou função - i.e. (dec_cmd ::= (dec_var; | dec_func;)*)", this.currentToken);
-        }
+		return decVarFunc;
+	}
 
-        return decVarFunc;
-    }
+	private ASTDecVarFunc parseDecFunc() throws SyntacticException, LexicalException {
 
-    private ASTDecVarFunc parseDecFunc() {
-        ASTDecFunc decFunc = null;
-        return decFunc;
-    }
+//		dec_func ::= PROC identifier = (dec_param?)  (var_type | VOID) : BEGIN dec_bodies END
+		int kind = this.currentToken.getKind();
+		ArrayList<TType> argsType = new ArrayList<TType>();
+		ArrayList<TID> argsId = new ArrayList<TID>();
 
+
+		if (Kind == ID) {
+			name = new TID(currentToken.getSpelling());
+		} else {
+			error("Nao ha um id");
+		}
+
+		accept(EQUALS);
+		accept(LPAR);
+		if (kind == RPAR) {
+			acceptIt();
+		} else {
+			do {
+				if (kind == ) {
+					argsType.add(new TT);
+				} else {
+					error("erro");
+				}
+
+				if (kind == ID) {
+					argsId.add(new TID(currentToken.getSpelling()));
+				} else {
+					error("erro");
+				}
+			}
+		}
+
+
+		ASTDecFunc decFunc = null;
+
+		if (k)
+			return decFunc;
+	}
+
+
+	private ASTDecVarFunc parseDecVar() throws SyntacticException, LexicalException {
+
+		return null;
+	}
+
+	private void error(String name) throws SyntacticException {
+		throw new SyntacticException(name, currentToken);
+	}
 }
