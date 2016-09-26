@@ -26,41 +26,27 @@ public class Compiler {
 	 * @param args - none
 	 */
 	public static void main(String[] args) {
-		// Check lexical grammar
-		Scanner scanner = new Scanner(Properties.PROGRAM_1);
-		Token token;
-		do {
-			try {
-				token = scanner.getNextToken();
-				String spelling = token.getSpelling();
-				System.out.println(String.format("Token: %s - Value: %s", spelling, token.getKind()));
-			} catch (LexicalException e) {
-				e.printStackTrace();
-				token = null;
-				System.out.println("ERROR!!!!");
-			}
-		} while (token != null && token.getKind() != GrammarSymbols.EOT);
+//		 Initializes the identification table with the reserved words
+		Compiler.initIdentificationTable();
 
-		// Initializes the identification table with the reserved words 
-//		Compiler.initIdentificationTable();
-//
-//		// Creates the parser object
-//		Parser p = new Parser();
-//
-//		// Creates the AST object
+		// Creates the parser object
+		Parser p = new Parser();
+
+		// Creates the AST object
 //		AST astRoot = null;
-//
-//		try {
-//			// Parses the source code
+
+		try {
+			// Parses the source code
 //			astRoot = p.parse();
+			p.parse();
 //			System.out.println("\n-- AST STRUCTURE --");
 //			if ( astRoot != null ) {
 //				System.out.println(astRoot.toString(0));
 //			}
-//		} catch (SyntacticException e) {
-//			// Shows the syntactic/lexical error stack trace
-//			e.printStackTrace();
-//		}
+		} catch (SyntacticException | LexicalException e) {
+			// Shows the syntactic/lexical error stack trace
+			e.printStackTrace();
+		}
 	}
 	
 	/**
