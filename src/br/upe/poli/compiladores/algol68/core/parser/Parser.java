@@ -4,15 +4,10 @@ import br.upe.poli.compiladores.algol68.core.compiler.Properties;
 import br.upe.poli.compiladores.algol68.core.scanner.LexicalException;
 import br.upe.poli.compiladores.algol68.core.scanner.Scanner;
 import br.upe.poli.compiladores.algol68.core.scanner.Token;
-import br.upe.poli.compiladores.algol68.core.util.AST.AST;
-import br.upe.poli.compiladores.algol68.core.util.AST.ASTDecCmd;
-import br.upe.poli.compiladores.algol68.core.util.AST.ASTDecFunc;
-import br.upe.poli.compiladores.algol68.core.util.AST.ASTDecVarFunc;
-import br.upe.poli.compiladores.algol68.helpers.GrammarSymbols;
-import com.sun.deploy.security.ValidationState;
-import com.sun.org.apache.regexp.internal.RE;
+import br.upe.poli.compiladores.algol68.core.util.AST.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static br.upe.poli.compiladores.algol68.helpers.GrammarSymbols.*;
@@ -79,201 +74,283 @@ public class Parser {
         this.currentToken = this.scanner.getNextToken();
 
 		accept(BEGIN);
-		parseCmd();
+		CMD cmd = parseCmd();
 		accept(END);
 		accept(EOT);
 
-		return null;
+		return new P(cmd);
 	}
 
-	private void parseCmd() throws LexicalException, SyntacticException {
+	// region Métodos de Parse.
+	private CMD parseCmd() throws LexicalException, SyntacticException {
         // dec_cmd ::= (dec_var; | dec_func;)*
 
+        List<DVF> dvfs = new ArrayList<>();
 		while (this.currentToken.getKind() != END) {
-			parseDecVarFunc();
+			dvfs.addAll(parseDecVarFunc());
 		}
+
+		return new CMD(dvfs);
 	}
 
-	private void parseDecVarFunc() throws LexicalException, SyntacticException {
+	private List<? extends DVF> parseDecVarFunc() throws LexicalException, SyntacticException {
+        List<? extends DVF> dvfs = null;
+
 		int kind = this.currentToken.getKind();
 		if (kind == PROC) {
-			parseDecFunc();
+			dvfs = Collections.singletonList(parseDecFunc());
 		} else if (isVarType(kind)) {
-			parseDecVar();
+            dvfs = parseDecVar();
             accept(SEMICOLON);
 		} else {
 			error("Você não inicializou nenhuma variável ou função - i.e. (dec_cmd ::= (dec_var; | dec_func;)*)");
 		}
+
+		return dvfs;
 	}
 
-	private void parseDecFunc() throws SyntacticException, LexicalException {
+	private DF parseDecFunc() throws SyntacticException, LexicalException {
         // dec_func ::= PROC identifier = (dec_param?) (var_type | VOID) : BEGIN dec_bodies END
         // dec_param ::= var_type identifier (,dec_param)?
 
         acceptIt();
+
+        TID tid = new TID(this.currentToken);
         accept(ID);
 		accept(OP_REL);
 		accept(L_PAR);
 
+        List<DP> dps = null;
         if (isVarType(this.currentToken.getKind())) {
+            dps = new ArrayList<>();
+
+            TVT tvt = new TVT(this.currentToken);
             acceptIt();
+
+            TID tid1 = new TID(this.currentToken);
             accept(ID);
+            dps.add(new DP(tvt, tid1));
 
             while (this.currentToken.getKind() == COMMA) {
                 acceptIt();
 
                 if (isVarType(this.currentToken.getKind())) {
+                    tvt = new TVT(this.currentToken);
                     acceptIt();
                 }
 
+                TID tidN = new TID(this.currentToken);
                 accept(ID);
+
+                dps.add(new DP(tvt, tidN));
             }
         }
 
         accept(R_PAR);
 
+        TVT tvt;
         if (isVarType(this.currentToken.getKind())) {
+            tvt = new TVT(this.currentToken);
             acceptIt();
         } else {
+            tvt = new TVTVoid(this.currentToken);
             accept(VOID);
         }
 
         accept(TWO_DOTS);
         accept(BEGIN);
-        parseDecBodies();
+        List<DB> bodies = parseDecBodies();
         accept(END);
+
+        return new DF(tid, dps, tvt, bodies);
 	}
 
-    private void parseDecBodies() throws SyntacticException, LexicalException {
+    private List<DB> parseDecBodies() throws SyntacticException, LexicalException {
         // dec_bodies ::= (dec_cmd_body;)*
 
+        List<DB> dbs = new ArrayList<>();
         while (isCmdBody(this.currentToken.getKind())) {
-            parseDecCmdBody();
+            dbs.add(parseDecCmdBody());
             accept(SEMICOLON);
         }
+
+        return dbs;
     }
 
-    private void parseDecCmdBody() throws LexicalException, SyntacticException {
+    private DBCmd parseDecCmdBody() throws LexicalException, SyntacticException {
         // dec_cmd_body ::= dec_var | dec_cond | dec_while | dec_return | dec_id_atri | PRINT dec_expr | BREAK | CONTINUE
 
+        DBCmd dbCmd;
         int kind = this.currentToken.getKind();
         switch (kind) {
             case BREAK:
+                dbCmd = new DBCmdBreak(new TBreak(this.currentToken));
+                acceptIt();
+                break;
+
             case CONTINUE:
+                dbCmd = new DBCmdContinue(new TContinue(this.currentToken));
                 acceptIt();
                 break;
 
             case PRINT:
+                TPrint tPrint = new TPrint(this.currentToken);
                 acceptIt();
-                parseDecExpr();
+                DEXPR dexpr = parseDecExpr();
+
+                dbCmd = new DBCmdPrint(tPrint, dexpr);
                 break;
 
             case INT:
             case BOOL:
-                parseDecVar();
+                List<DV> dvs = parseDecVar();
+                dbCmd = new DBCmdDV(dvs);
                 break;
 
             case IF:
-                parseDecCond();
+                DC dc = parseDecCond();
+                dbCmd = new DBCmdDC(dc);
                 break;
 
             case WHILE:
-                parseDecWhile();
+                DW dw = parseDecWhile();
+                dbCmd = new DBCmdDW(dw);
                 break;
 
             case RETURN:
-                parseDecReturn();
+                DR dr = parseDecReturn();
+                dbCmd = new DBCmdDR(dr);
                 break;
 
             default:
-                parseDecIdAtri();
+                DIdAtri dIdAtri = parseDecIdAtri();
+                dbCmd = new DBCmdDIdAtri(dIdAtri);
                 break;
         }
+
+        return dbCmd;
     }
 
-    private void parseDecIdAtri() throws SyntacticException, LexicalException {
+    private DIdAtri parseDecIdAtri() throws SyntacticException, LexicalException {
         // dec_id_atri ::= identifier ( (dec_args?) | := (number | bool) )
 
+        TID tid = new TID(this.currentToken);
         accept(ID);
+
+        DIdAtri dIdAtri;
         if (this.currentToken.getKind() == L_PAR) {
             acceptIt();
-            parseDecArgs();
+            List<DA> das = parseDecArgs();
             accept(R_PAR);
+
+            dIdAtri = new DIdAtriDA(tid, das);
         } else {
             accept(ASSIGN);
-            parseDecExpr();
+            DEXPR dexpr = parseDecExpr();
+
+            dIdAtri = new DidAtriExpr(tid, dexpr);
         }
+
+        return dIdAtri;
     }
 
-    private void parseDecReturn() throws LexicalException, SyntacticException {
+    private DR parseDecReturn() throws LexicalException, SyntacticException {
         // dec_return ::= RETURN dec_expr
 
         acceptIt();
-        parseDecExpr();
+        DEXPR dexpr = parseDecExpr();
+
+        return new DR(dexpr);
     }
 
-    private void parseDecWhile() throws LexicalException, SyntacticException {
+    private DW parseDecWhile() throws LexicalException, SyntacticException {
         // dec_while ::= WHILE dec_expr DO dec_bodies OD
 
         acceptIt();
-        parseDecExpr();
+        DEXPR dexpr = parseDecExpr();
         accept(DO);
-        parseDecBodies();
+        List<DB> dbs = parseDecBodies();
         accept(OD);
+
+        return new DW(dexpr, dbs);
     }
 
-    private void parseDecCond() throws LexicalException, SyntacticException {
+    private DC parseDecCond() throws LexicalException, SyntacticException {
         // dec_cond ::= IF dec_expr THEN dec_bodies (ELSE dec_bodies)? FI
 
         acceptIt();
-        parseDecExpr();
+        DEXPR dexpr = parseDecExpr();
         accept(THEN);
-        parseDecBodies();
+        List<DB> dbsIf = parseDecBodies();
+
+        DC dc = new DC(dexpr, dbsIf);
 
         if (this.currentToken.getKind() == ELSE) {
             acceptIt();
-            parseDecBodies();
+            List<DB> dbsElse = parseDecBodies();
+            dc.setDbsElse(dbsElse);
         }
 
         accept(FI);
+        return dc;
     }
 
-    private void parseDecVar() throws SyntacticException, LexicalException {
+    private List<DV> parseDecVar() throws SyntacticException, LexicalException {
         // dec_var ::= var_type identifier (:= dec_expr)? (dec_n_vars)*
         // dec_n_vars ::= ,identifier (:= dec_expr)? --> Corrige na gramática isso!
 
+        List<DV> dvs = new ArrayList<>();
+
+        TVT tvt = new TVT(this.currentToken);
         acceptIt();
+
+        TID tid = new TID(this.currentToken);
         accept(ID);
+
+        DEXPR dexpr1 = null;
         if (this.currentToken.getKind() == ASSIGN) {
             acceptIt();
-            parseDecExpr();
+            dexpr1 = parseDecExpr();
         }
+        tid.setAssignedExpr(dexpr1);
+        dvs.add(new DV(tvt, tid));
 
         while (this.currentToken.getKind() == COMMA) {
             acceptIt();
+
+            TID tidN = new TID(this.currentToken);
             accept(ID);
 
+            DEXPR dexprN = null;
             if (this.currentToken.getKind() == ASSIGN) {
                 acceptIt();
-                parseDecExpr();
+                dexprN = parseDecExpr();
             }
+            tidN.setAssignedExpr(dexprN);
+            dvs.add(new DV(tvt, tidN));
         }
+
+        return dvs;
     }
 
-    private void parseDecExpr() throws LexicalException, SyntacticException {
-        // dec_expr ::= dec_arith (op_rel dec_arith)
+    private DEXPR parseDecExpr() throws LexicalException, SyntacticException {
+        // dec_expr ::= dec_arith (op_rel dec_arith)?
 
         parseDecArith();
+
         if (this.currentToken.getKind() == OP_REL) {
             acceptIt();
             parseDecArith();
         }
+
+        return new DEXPR();
     }
 
     private void parseDecArith() throws LexicalException, SyntacticException {
         // dec_arith ::= dec_term (op_basic dec_term)*
 
         parseDecTerm();
+
         while (this.currentToken.getKind() == OP_BASIC) {
             acceptIt();
             parseDecTerm();
@@ -284,6 +361,7 @@ public class Parser {
         // dec_term ::= dec_term_arith (op_factor dec_term_arith)*
 
         parseDecTermArith();
+
         while (this.currentToken.getKind() == OP_FACTOR) {
             acceptIt();
             parseDecTermArith();
@@ -297,18 +375,17 @@ public class Parser {
         int kind = this.currentToken.getKind();
         switch (kind) {
             case NUMBER:
+                T t = new TNumber(this.currentToken);
+                acceptIt();
+                break;
+
             case TRUE:
             case FALSE:
                 acceptIt();
                 break;
 
             case ID:
-                acceptIt();
-                if (this.currentToken.getKind() == L_PAR) {
-                    acceptIt();
-                    parseDecArgs();
-                    accept(R_PAR);
-                }
+                parseDecId();
                 break;
 
             default:
@@ -319,15 +396,32 @@ public class Parser {
         }
     }
 
-    private void parseDecArgs() throws LexicalException, SyntacticException {
-        // dec_args ::=  dec_expr  (,dec_expr)*
-
-        parseDecExpr();
-        while (this.currentToken.getKind() == COMMA) {
+    private void parseDecId() throws LexicalException, SyntacticException {
+        acceptIt();
+        if (this.currentToken.getKind() == L_PAR) {
             acceptIt();
-            parseDecExpr();
+            parseDecArgs();
+            accept(R_PAR);
         }
     }
+
+    private List<DA> parseDecArgs() throws LexicalException, SyntacticException {
+        // dec_args ::=  dec_expr  (,dec_expr)*
+
+        List<DA> das = new ArrayList<>();
+
+        DEXPR dexpr = parseDecExpr();
+        das.add(new DA(dexpr));
+
+        while (this.currentToken.getKind() == COMMA) {
+            acceptIt();
+            DEXPR dexpr1 = parseDecExpr();
+            das.add(new DA(dexpr1));
+        }
+
+        return das;
+    }
+    // endregion
 
     // region Métodos auxiliares
     private boolean isCmdBody(int kind) {
