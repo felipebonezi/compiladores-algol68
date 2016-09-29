@@ -8,4 +8,10 @@ public class TContinue extends T {
         super(id);
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "TContinue", this, level);
+        return builder.toString();
+    }
 }

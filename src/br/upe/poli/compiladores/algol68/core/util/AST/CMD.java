@@ -14,4 +14,18 @@ public class CMD extends AST {
         return dvfs;
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "CMD", level);
+
+        if (dvfs != null) {
+            for (DVF dvf : dvfs) {
+                builder.append(dvf.toString(level + 1));
+            }
+        }
+
+        return builder.toString();
+    }
+
 }

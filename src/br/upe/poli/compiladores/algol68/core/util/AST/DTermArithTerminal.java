@@ -16,4 +16,14 @@ public class DTermArithTerminal extends DTermArith {
         return terminal;
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DTermArithTerminal", level);
+
+        builder.append(terminal.toString(level + 1));
+
+        return builder.toString();
+    }
+
 }

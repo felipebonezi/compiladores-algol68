@@ -8,4 +8,10 @@ public class TBool extends T {
         super(id);
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "TBool", this, level);
+        return builder.toString();
+    }
 }

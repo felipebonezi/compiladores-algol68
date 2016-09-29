@@ -8,4 +8,11 @@ public class TVT extends T {
         super(varType);
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "TVT", this, level);
+        return builder.toString();
+    }
+
 }

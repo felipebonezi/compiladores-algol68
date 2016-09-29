@@ -8,4 +8,10 @@ public class TBreak extends T {
         super(token);
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "TBreak", this, level);
+        return builder.toString();
+    }
 }

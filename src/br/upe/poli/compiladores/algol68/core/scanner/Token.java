@@ -61,5 +61,9 @@ public class Token {
 	public int getColumn() {
 		return column;
 	}
-	
+
+	@Override
+	public String toString() {
+		return String.format("K: %d - S: %s", this.kind, this.spelling);
+	}
 }

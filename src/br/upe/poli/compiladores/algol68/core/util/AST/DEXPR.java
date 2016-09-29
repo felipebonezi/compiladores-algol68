@@ -32,4 +32,20 @@ public class DEXPR extends AST {
     public void setTopRel(TOPRel topRel) {
         this.topRel = topRel;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DEXPR", level);
+
+        builder.append(d1.toString(level + 1));
+
+        if (d2 != null && topRel != null) {
+            builder.append(topRel.toString(level + 1));
+            builder.append(d2.toString(level + 1));
+        }
+
+        return builder.toString();
+    }
+
 }

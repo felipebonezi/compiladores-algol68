@@ -18,4 +18,17 @@ public class DBCmdDV extends DBCmd {
         return dvs;
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "CMD", level);
+
+        if (dvs != null) {
+            for (DV dvf : dvs) {
+                builder.append(dvf.toString(level + 1));
+            }
+        }
+
+        return builder.toString();
+    }
 }

@@ -8,4 +8,10 @@ public class TVTVoid extends TVT {
         super(token);
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "TVTVoid", this, level);
+        return builder.toString();
+    }
 }

@@ -23,4 +23,20 @@ public class DTermArithFunc extends DTermArith {
         this.tid = tid;
         this.args = args;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DTermArithFunc", level);
+
+        builder.append(tid.toString(level + 1));
+
+        if (args != null) {
+            for (DA dvf : args) {
+                builder.append(dvf.toString(level + 1));
+            }
+        }
+
+        return builder.toString();
+    }
 }

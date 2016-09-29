@@ -13,4 +13,13 @@ public class DBCmdContinue extends DBCmd {
         return tContinue;
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DBCmdContinue", level);
+
+        builder.append(tContinue.toString(level + 1));
+
+        return builder.toString();
+    }
 }

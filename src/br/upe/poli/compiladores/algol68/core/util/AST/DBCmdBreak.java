@@ -15,4 +15,14 @@ public class DBCmdBreak extends DBCmd {
     public TBreak getTBreak() {
         return tBreak;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DBCmdBreak", level);
+
+        builder.append(tBreak.toString(level + 1));
+
+        return builder.toString();
+    }
 }

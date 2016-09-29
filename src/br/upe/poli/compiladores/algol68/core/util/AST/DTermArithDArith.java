@@ -15,4 +15,14 @@ public class DTermArithDArith extends DTermArith {
     public DArith getdArith() {
         return dArith;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DTermArithDArith", level);
+
+        builder.append(dArith.toString(level + 1));
+
+        return builder.toString();
+    }
 }

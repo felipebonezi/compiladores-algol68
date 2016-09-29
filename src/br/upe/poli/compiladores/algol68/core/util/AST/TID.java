@@ -18,4 +18,15 @@ public class TID extends T {
         this.assignedExpr = assignedExpr;
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "TID", this, level);
+
+        if (assignedExpr != null) {
+            builder.append(assignedExpr.toString(level + 1));
+        }
+
+        return builder.toString();
+    }
 }

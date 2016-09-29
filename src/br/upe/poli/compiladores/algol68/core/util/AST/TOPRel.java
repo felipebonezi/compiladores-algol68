@@ -11,4 +11,10 @@ public class TOPRel extends TOP {
         super(id);
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "TOPRel", this, level);
+        return builder.toString();
+    }
 }

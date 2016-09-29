@@ -33,17 +33,14 @@ public class Compiler {
 		Parser p = new Parser();
 
 		// Creates the AST object
-//		AST astRoot = null;
-
+		AST astRoot;
 		try {
 			// Parses the source code
-//			astRoot = p.parse();
-			AST ast = p.parse();
-			System.out.print(ast);
-//			System.out.println("\n-- AST STRUCTURE --");
-//			if ( astRoot != null ) {
-//				System.out.println(astRoot.toString(0));
-//			}
+			astRoot = p.parse();
+			System.out.println("\n-- AST STRUCTURE --");
+			if ( astRoot != null ) {
+				System.out.println(astRoot.toString(0));
+			}
 		} catch (SyntacticException | LexicalException e) {
 			// Shows the syntactic/lexical error stack trace
 			e.printStackTrace();

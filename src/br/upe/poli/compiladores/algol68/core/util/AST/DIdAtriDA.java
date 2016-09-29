@@ -17,4 +17,18 @@ public class DIdAtriDA extends DIdAtri {
     public List<DA> getDas() {
         return das;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DIdAtriDA", level);
+
+        if (das != null) {
+            for (DA dvf : das) {
+                builder.append(dvf.toString(level + 1));
+            }
+        }
+
+        return builder.toString();
+    }
 }

@@ -31,4 +31,24 @@ public class DArith extends AST {
     public void setTops(List<TOPBasic> tops) {
         this.tops = tops;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DArith", level);
+
+        builder.append(t1.toString(level + 1));
+
+        if (terms != null && tops != null) {
+            for (int i = 0;i < terms.size();i++) {
+                TOPBasic topBasic = tops.get(i);
+                builder.append(topBasic.toString(level + 1));
+
+                DTerm dTerm = terms.get(i);
+                builder.append(dTerm.toString(level + 1));
+            }
+        }
+
+        return builder.toString();
+    }
 }

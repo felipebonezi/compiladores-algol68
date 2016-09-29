@@ -18,4 +18,14 @@ public class DBCmdDIdAtri extends DBCmd {
     public DIdAtri getdIdAtri() {
         return dIdAtri;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DBCmdDIdAtri", level);
+
+        builder.append(dIdAtri.toString(level + 1));
+
+        return builder.toString();
+    }
 }

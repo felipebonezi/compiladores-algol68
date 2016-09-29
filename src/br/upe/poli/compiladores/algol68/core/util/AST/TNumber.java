@@ -8,4 +8,10 @@ public class TNumber extends T {
         super(id);
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "TNumber", this, level);
+        return builder.toString();
+    }
 }

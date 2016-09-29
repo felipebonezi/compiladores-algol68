@@ -18,4 +18,15 @@ public class DBCmdPrint extends DBCmd {
     public DEXPR getDexpr() {
         return dexpr;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DBCmdPrint", level);
+
+        builder.append(tPrint.toString(level + 1));
+        builder.append(dexpr.toString(level + 1));
+
+        return builder.toString();
+    }
 }

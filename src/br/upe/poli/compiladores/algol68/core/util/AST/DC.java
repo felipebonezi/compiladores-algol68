@@ -28,4 +28,27 @@ public class DC extends AST {
     public void setDbsElse(List<DB> dbsElse) {
         this.dbsElse = dbsElse;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DC", level);
+
+        builder.append(dexpr.toString(level + 1));
+
+        if (dbsIf != null) {
+            for (DB dvf : dbsIf) {
+                builder.append(dvf.toString(level + 1));
+            }
+        }
+
+        if (dbsElse != null) {
+            for (DB dvf : dbsElse) {
+                builder.append(dvf.toString(level + 1));
+            }
+        }
+
+        return builder.toString();
+    }
+
 }

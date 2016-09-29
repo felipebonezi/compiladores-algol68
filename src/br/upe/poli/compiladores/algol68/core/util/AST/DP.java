@@ -17,4 +17,15 @@ public class DP extends AST {
     public TVT getVarType() {
         return varType;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DP", level);
+
+        builder.append(varType.toString(level + 1));
+        builder.append(tid.toString(level + 1));
+
+        return builder.toString();
+    }
 }

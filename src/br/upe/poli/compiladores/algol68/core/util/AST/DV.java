@@ -10,4 +10,15 @@ public class DV extends DVF {
         this.tid = tid;
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DV", level);
+
+        builder.append(tvt.toString(level + 1));
+        builder.append(tid.toString(level + 1));
+
+        return builder.toString();
+    }
+
 }

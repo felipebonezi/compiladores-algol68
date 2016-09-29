@@ -31,4 +31,28 @@ public class DF extends DVF {
     public List<DB> getBodies() {
         return bodies;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DF", level);
+
+        builder.append(tid.toString(level + 1));
+
+        if (params != null) {
+            for (DP dvf : params) {
+                builder.append(dvf.toString(level + 1));
+            }
+        }
+
+        builder.append(returnType.toString(level + 1));
+
+        if (bodies != null) {
+            for (DB dvf : bodies) {
+                builder.append(dvf.toString(level + 1));
+            }
+        }
+
+        return builder.toString();
+    }
 }

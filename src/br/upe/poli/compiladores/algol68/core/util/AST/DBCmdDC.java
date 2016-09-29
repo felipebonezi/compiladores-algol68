@@ -16,4 +16,13 @@ public class DBCmdDC extends DBCmd {
         return dc;
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DBCmdDC", level);
+
+        builder.append(dc.toString(level + 1));
+
+        return builder.toString();
+    }
 }

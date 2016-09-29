@@ -15,4 +15,14 @@ public class DBCmdDW extends DBCmd {
     public DW getDw() {
         return dw;
     }
+
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DBCmdDW", level);
+
+        builder.append(dw.toString(level + 1));
+
+        return builder.toString();
+    }
 }

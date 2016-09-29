@@ -35,4 +35,24 @@ public class DTerm extends AST {
         this.tops = tops;
     }
 
+    @Override
+    public String toString(int level) {
+        StringBuilder builder = new StringBuilder();
+        toStringHelper(builder, "DTerm", level);
+
+        builder.append(t1.toString(level + 1));
+
+        if (terms != null && tops != null) {
+            for (int i = 0;i < terms.size();i++) {
+                TOPFactor topFactor = tops.get(i);
+                builder.append(topFactor.toString(level + 1));
+
+                DTermArith dTermArith = terms.get(i);
+                builder.append(dTermArith.toString(level + 1));
+            }
+        }
+
+        return builder.toString();
+    }
+
 }
