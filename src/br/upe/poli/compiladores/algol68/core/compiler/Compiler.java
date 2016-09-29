@@ -38,7 +38,8 @@ public class Compiler {
 		try {
 			// Parses the source code
 //			astRoot = p.parse();
-			p.parse();
+			AST ast = p.parse();
+			System.out.print(ast);
 //			System.out.println("\n-- AST STRUCTURE --");
 //			if ( astRoot != null ) {
 //				System.out.println(astRoot.toString(0));

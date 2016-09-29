@@ -14,6 +14,10 @@ BEGIN
     INT g := f / g;
     INT h := h / 1 * d / f * b;
 
+    # Declarando variáveis por expressões de soma e multiplicação;
+    INT w := h / 1 + d / f * b;
+    INT y := (h / 1) + (d / (f * b));
+
     # Declarando variáveis booleanas
     BOOL i;
     BOOL j := true;

@@ -336,73 +336,130 @@ public class Parser {
     private DEXPR parseDecExpr() throws LexicalException, SyntacticException {
         // dec_expr ::= dec_arith (op_rel dec_arith)?
 
-        parseDecArith();
+        DArith d1 = parseDecArith();
+        DEXPR dexpr = new DEXPR(d1);
 
+        DArith d2  = null;
+        TOPRel top = null;
         if (this.currentToken.getKind() == OP_REL) {
+            top = new TOPRel(this.currentToken);
             acceptIt();
-            parseDecArith();
+            d2 = parseDecArith();
         }
+        dexpr.setD2(d2);
+        dexpr.setTopRel(top);
 
-        return new DEXPR();
+        return dexpr;
     }
 
-    private void parseDecArith() throws LexicalException, SyntacticException {
+    private DArith parseDecArith() throws LexicalException, SyntacticException {
         // dec_arith ::= dec_term (op_basic dec_term)*
 
-        parseDecTerm();
+        DTerm t1 = parseDecTerm();
+        DArith dArith = new DArith(t1);
 
+        List<DTerm> terms = null;
+        List<TOPBasic> tops = null;
         while (this.currentToken.getKind() == OP_BASIC) {
+            if (tops == null) {
+                tops = new ArrayList<>();
+                terms = new ArrayList<>();
+            }
+
+            tops.add(new TOPBasic(this.currentToken));
             acceptIt();
-            parseDecTerm();
+
+            terms.add(parseDecTerm());
         }
+        dArith.setTops(tops);
+        dArith.setTerms(terms);
+
+        return dArith;
     }
 
-    private void parseDecTerm() throws LexicalException, SyntacticException {
+    private DTerm parseDecTerm() throws LexicalException, SyntacticException {
         // dec_term ::= dec_term_arith (op_factor dec_term_arith)*
 
-        parseDecTermArith();
+        DTermArith dta1 = parseDecTermArith();
+        DTerm dTerm = new DTerm(dta1);
 
+        List<DTermArith> terms = null;
+        List<TOPFactor> tops = null;
         while (this.currentToken.getKind() == OP_FACTOR) {
+            if (tops == null) {
+                tops = new ArrayList<>();
+                terms = new ArrayList<>();
+            }
+
+            tops.add(new TOPFactor(this.currentToken));
             acceptIt();
-            parseDecTermArith();
+
+            terms.add(parseDecTermArith());
         }
+        dTerm.setTops(tops);
+        dTerm.setTerms(terms);
+
+        return dTerm;
     }
 
-    private void parseDecTermArith() throws LexicalException, SyntacticException {
+    private DTermArith parseDecTermArith() throws LexicalException, SyntacticException {
         // dec_term_arith ::= dec_id | number | bool | (dec_arith)
         // dec_id ::= identifier ((dec_args?))?
+
+        DTermArith dTermArith;
+        T t;
 
         int kind = this.currentToken.getKind();
         switch (kind) {
             case NUMBER:
-                T t = new TNumber(this.currentToken);
+                t = new TNumber(this.currentToken);
                 acceptIt();
+
+                dTermArith = new DTermArithTerminal(t);
                 break;
 
             case TRUE:
             case FALSE:
+                t = new TBool(this.currentToken);
                 acceptIt();
+
+                dTermArith = new DTermArithTerminal(t);
                 break;
 
             case ID:
-                parseDecId();
+                dTermArith = parseDecId();
                 break;
 
             default:
                 accept(L_PAR);
-                parseDecArith();
+
+                DArith dArith = parseDecArith();
+                dTermArith = new DTermArithDArith(dArith);
+
                 accept(R_PAR);
                 break;
         }
+
+        return dTermArith;
     }
 
-    private void parseDecId() throws LexicalException, SyntacticException {
+    private DTermArith parseDecId() throws LexicalException, SyntacticException {
+        DTermArith dTermArith;
+
+        TID tid = new TID(this.currentToken);
         acceptIt();
         if (this.currentToken.getKind() == L_PAR) {
             acceptIt();
-            parseDecArgs();
+
+            List<DA> das = parseDecArgs();
+            dTermArith = new DTermArithFunc(tid, das);
+
             accept(R_PAR);
+        } else {
+            dTermArith = new DTermArithTerminal(tid);
         }
+
+        return dTermArith;
     }
 
     private List<DA> parseDecArgs() throws LexicalException, SyntacticException {
