@@ -1,6 +1,6 @@
 UPE - Projeto de Compiladores 2016.2
 ====================================
-> Alunos: Eryck Mano, Felipe Bonezi, Fernando Baptistella
+> Alunos: Felipe Bonezi, Fernando Baptistella, Eryck Mano
 
 *Release Notes:*
 * Analisador Léxico (OK);
