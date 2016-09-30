@@ -334,20 +334,26 @@ public class Parser {
     }
 
     private DEXPR parseDecExpr() throws LexicalException, SyntacticException {
-        // dec_expr ::= dec_arith (op_rel dec_arith)?
+        // dec_expr ::= dec_arith (op_rel dec_arith)*
 
         DArith d1 = parseDecArith();
         DEXPR dexpr = new DEXPR(d1);
 
-        DArith d2  = null;
-        TOPRel top = null;
-        if (this.currentToken.getKind() == OP_REL) {
-            top = new TOPRel(this.currentToken);
+        List<DArith> terms = null;
+        List<TOPRel> tops = null;
+        while (this.currentToken.getKind() == OP_REL) {
+            if (tops == null) {
+                tops = new ArrayList<>();
+                terms = new ArrayList<>();
+            }
+
+            tops.add(new TOPRel(this.currentToken));
             acceptIt();
-            d2 = parseDecArith();
+
+            terms.add(parseDecArith());
         }
-        dexpr.setD2(d2);
-        dexpr.setTopRel(top);
+        dexpr.setTops(tops);
+        dexpr.setTerms(terms);
 
         return dexpr;
     }
@@ -403,7 +409,7 @@ public class Parser {
     }
 
     private DTermArith parseDecTermArith() throws LexicalException, SyntacticException {
-        // dec_term_arith ::= dec_id | number | bool | (dec_arith)
+        // dec_term_arith ::= dec_id | number | bool | (dec_expr)
         // dec_id ::= identifier ((dec_args?))?
 
         DTermArith dTermArith;
@@ -433,8 +439,8 @@ public class Parser {
             default:
                 accept(L_PAR);
 
-                DArith dArith = parseDecArith();
-                dTermArith = new DTermArithDArith(dArith);
+                DEXPR dexpr = parseDecExpr();
+                dTermArith = new DTermArithDExpr(dexpr);
 
                 accept(R_PAR);
                 break;

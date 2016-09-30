@@ -1,13 +1,15 @@
 package br.upe.poli.compiladores.algol68.core.util.AST;
 
+import java.util.List;
+
 /**
  * Created by felipebonezi on 25/09/16.
  */
 public class DEXPR extends AST {
 
     private final DArith d1;
-    private DArith d2;
-    private TOPRel topRel;
+    private List<DArith> terms;
+    private List<TOPRel> tops;
 
     public DEXPR(DArith d1) {
         this.d1 = d1;
@@ -17,20 +19,20 @@ public class DEXPR extends AST {
         return d1;
     }
 
-    public DArith getD2() {
-        return d2;
+    public List<DArith> getTerms() {
+        return terms;
     }
 
-    public TOPRel getTopRel() {
-        return topRel;
+    public void setTerms(List<DArith> terms) {
+        this.terms = terms;
     }
 
-    public void setD2(DArith d2) {
-        this.d2 = d2;
+    public List<TOPRel> getTops() {
+        return tops;
     }
 
-    public void setTopRel(TOPRel topRel) {
-        this.topRel = topRel;
+    public void setTops(List<TOPRel> tops) {
+        this.tops = tops;
     }
 
     @Override
@@ -40,9 +42,14 @@ public class DEXPR extends AST {
 
         builder.append(d1.toString(level + 1));
 
-        if (d2 != null && topRel != null) {
-            builder.append(topRel.toString(level + 1));
-            builder.append(d2.toString(level + 1));
+        if (terms != null && tops != null) {
+            for (int i = 0;i < terms.size();i++) {
+                TOPRel topRel = tops.get(i);
+                DArith dArith = terms.get(i);
+
+                builder.append(topRel.toString(level + 1));
+                builder.append(dArith.toString(level + 1));
+            }
         }
 
         return builder.toString();

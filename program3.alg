@@ -246,7 +246,7 @@ BEGIN
 
     PROC funcaox1 = (INT param1, param2, param3) INT :
         BEGIN
-            IF ((h + 2 * 1) / (a + b + c)) < 20 THEN
+            IF ((h + 2 * 1) / (a + (b + c))) < 20 THEN
                 RETURN funcao8(1, h, (1 + 1));
             ELSE
                 h := (b - (c * d)) / 2;
@@ -265,12 +265,27 @@ BEGIN
         BEGIN
             INT result := funcao8(param2, (a * h +(3 - 1)), param2);
             PRINT result;
+
+            WHILE (5 > (7)) = FALSE
+                DO
+                    PRINT result;
+                OD;
         END
 
-    PROC funcaox4 = (INT param1, INT param2, BOOL param3) VOID :
+    PROC funcaox4 = (INT param1, INT param2, BOOL param3) BOOL :
         BEGIN
             INT result := funcaox3(param3, param1, param3);
             PRINT result;
+
+            IF (5) > 7 = TRUE THEN
+                RETURN TRUE;
+            ELSE
+                RETURN FALSE;
+            FI;
+
+            IF ((TRUE)) THEN
+                RETURN FALSE;
+            FI;
         END
 
 END
