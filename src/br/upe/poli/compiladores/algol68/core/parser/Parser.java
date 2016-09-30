@@ -117,12 +117,14 @@ public class Parser {
 
         TID tid = new TID(this.currentToken);
         accept(ID);
-		accept(OP_REL);
+		accept(OP_REL); // TODO Token para apenas '='
 		accept(L_PAR);
 
         List<DP> dps = null;
         if (isVarType(this.currentToken.getKind())) {
             dps = new ArrayList<>();
+
+            // TODO Adicionar o DecParam como método parse;
 
             TVT tvt = new TVT(this.currentToken);
             acceptIt();
