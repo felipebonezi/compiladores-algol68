@@ -117,7 +117,7 @@ public class Parser {
 
         TID tid = new TID(this.currentToken);
         accept(ID);
-		accept(OP_REL); // TODO Token para apenas '='
+		accept(OP_EQUALS); // TODO Token para apenas '='
 		accept(L_PAR);
 
         List<DP> dps = null;
@@ -347,7 +347,7 @@ public class Parser {
 
         List<DArith> terms = null;
         List<TOPRel> tops = null;
-        while (this.currentToken.getKind() == OP_REL) {
+        while (this.currentToken.getKind() == OP_REL || this.currentToken.getKind() == OP_EQUALS) {
             if (tops == null) {
                 tops = new ArrayList<>();
                 terms = new ArrayList<>();

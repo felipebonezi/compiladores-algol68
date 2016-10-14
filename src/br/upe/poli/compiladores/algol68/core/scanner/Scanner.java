@@ -189,8 +189,14 @@ public class Scanner {
                     } else if(currentChar == ',') {
                         state = 4;
                         getNextChar();
-                    } else if(currentChar == '>' || currentChar == '<' || currentChar == '=' || currentChar == '!') {
+                    } else if(currentChar == '>' || currentChar == '<') {
                         state = 5;
+                        getNextChar();
+                    } else if (currentChar == '=') {
+                        state = 12;
+                        getNextChar();
+                    } else if (currentChar == '!') {
+                        state = 13;
                         getNextChar();
                     } else if(currentChar == ':') {
                         state = 6;
@@ -232,6 +238,23 @@ public class Scanner {
                         getNextChar();
                     }
                     return GrammarSymbols.OP_REL;
+
+                case 12:
+                    if (currentChar == '=') {
+                        getNextChar();
+                        return GrammarSymbols.OP_REL;
+                    } else {
+                        return GrammarSymbols.OP_EQUALS;
+                    }
+
+                case 13:
+                    if (currentChar == '=') {
+                        getNextChar();
+                        return GrammarSymbols.OP_REL;
+                    } else {
+                        state = 99;
+                    }
+                    break;
 
                 case 6:
                     if (currentChar == '=') {
