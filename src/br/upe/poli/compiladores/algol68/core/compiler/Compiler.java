@@ -3,11 +3,8 @@ package br.upe.poli.compiladores.algol68.core.compiler;
 import br.upe.poli.compiladores.algol68.core.parser.Parser;
 import br.upe.poli.compiladores.algol68.core.parser.SyntacticException;
 import br.upe.poli.compiladores.algol68.core.scanner.LexicalException;
-import br.upe.poli.compiladores.algol68.core.scanner.Scanner;
-import br.upe.poli.compiladores.algol68.core.scanner.Token;
 import br.upe.poli.compiladores.algol68.core.util.AST.AST;
 import br.upe.poli.compiladores.algol68.core.util.symbolsTable.IdentificationTable;
-import br.upe.poli.compiladores.algol68.helpers.GrammarSymbols;
 
 /**
  * Compiler driver

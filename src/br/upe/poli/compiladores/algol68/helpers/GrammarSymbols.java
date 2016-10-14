@@ -41,8 +41,8 @@ public class GrammarSymbols {
     public static final int FALSE = 29;
     public static final int OP_EQUALS = 30;
 
-    public static final HashSet<String> PRIVATE_WORDS;
-    public static final Hashtable<String, Integer> PRIVATE_WORDS_TOKENS;
+    private static final HashSet<String> PRIVATE_WORDS;
+    private static final Hashtable<String, Integer> PRIVATE_WORDS_TOKENS;
 
     static {
         PRIVATE_WORDS = new HashSet<>();
@@ -98,7 +98,7 @@ public class GrammarSymbols {
         return getTokenForPrivateWord(buffer.toString());
     }
 
-    public static int getTokenForPrivateWord(String text) {
+    private static int getTokenForPrivateWord(String text) {
         return PRIVATE_WORDS_TOKENS.get(text.toLowerCase());
     }
 
