@@ -122,30 +122,7 @@ public class Parser {
 
         List<DP> dps = null;
         if (isVarType(this.currentToken.getKind())) {
-            dps = new ArrayList<>();
-
-            // TODO Adicionar o DecParam como método parse;
-
-            TVT tvt = new TVT(this.currentToken);
-            acceptIt();
-
-            TID tid1 = new TID(this.currentToken);
-            accept(ID);
-            dps.add(new DP(tvt, tid1));
-
-            while (this.currentToken.getKind() == COMMA) {
-                acceptIt();
-
-                if (isVarType(this.currentToken.getKind())) {
-                    tvt = new TVT(this.currentToken);
-                    acceptIt();
-                }
-
-                TID tidN = new TID(this.currentToken);
-                accept(ID);
-
-                dps.add(new DP(tvt, tidN));
-            }
+            dps = parseDecParam();
         }
 
         accept(R_PAR);
@@ -166,6 +143,33 @@ public class Parser {
 
         return new DF(tid, dps, tvt, bodies);
 	}
+
+    private List<DP> parseDecParam() throws LexicalException, SyntacticException {
+        List<DP> dps = new ArrayList<>();
+
+        TVT tvt = new TVT(this.currentToken);
+        acceptIt();
+
+        TID tid1 = new TID(this.currentToken);
+        accept(ID);
+        dps.add(new DP(tvt, tid1));
+
+        while (this.currentToken.getKind() == COMMA) {
+            acceptIt();
+
+            if (isVarType(this.currentToken.getKind())) {
+                tvt = new TVT(this.currentToken);
+                acceptIt();
+            }
+
+            TID tidN = new TID(this.currentToken);
+            accept(ID);
+
+            dps.add(new DP(tvt, tidN));
+        }
+
+        return dps;
+    }
 
     private List<DB> parseDecBodies() throws SyntacticException, LexicalException {
         // dec_bodies ::= (dec_cmd_body;)*
