@@ -6,7 +6,7 @@ import br.upe.poli.compiladores.algol68.core.scanner.Token;
 
 import java.util.ArrayList;
 
-public class TBool extends T {
+public class TBool extends TVT {
 
     public TBool(Token id) {
         super(id);

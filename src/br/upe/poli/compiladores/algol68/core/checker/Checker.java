@@ -4,6 +4,7 @@ import br.upe.poli.compiladores.algol68.core.parser.Parser;
 import br.upe.poli.compiladores.algol68.core.scanner.Token;
 import br.upe.poli.compiladores.algol68.core.util.AST.*;
 import br.upe.poli.compiladores.algol68.core.util.symbolsTable.IdentificationTable;
+import br.upe.poli.compiladores.algol68.helpers.GrammarSymbols;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,6 +92,8 @@ public class Checker implements Visitor {
 
         TVT returnType = df.getReturnType();
         returnType.visit(this, list);
+
+        list.add(returnType);
 
         // region Scope
         idTable.openScope();
@@ -405,11 +408,62 @@ public class Checker implements Visitor {
 
     @Override
     public Object visitDV(DV dv, ArrayList<AST> list) throws SemanticException {
+        TVT tvt = dv.getTvt();
+        tvt.visit(this, list);
+        int tvtKind = tvt.getId().getKind();
+
         TID tid = dv.getTid();
         tid.visit(this, list);
 
-        TVT tvt = dv.getTvt();
-        tvt.visit(this, list);
+        String spelling = tid.getId().getSpelling();
+        AST dvEarlier = idTable.retrieve(spelling);
+        if (dvEarlier != null) {
+            throw new SemanticException(String.format("Você já declarou a variável '%s' em outro lugar.", spelling));
+        } else {
+            idTable.enter(spelling, tid);
+        }
+
+        DEXPR dexpr = tid.getAssignedExpr();
+        if (dexpr != null) {
+//        List<TOPRel> tops = dexpr.getTops();
+//        if (tops != null && !tops.isEmpty()) {
+//            tvtKindExp = GrammarSymbols.NUMBER;
+//        }
+
+            DTermArith dTermArith = dexpr.getD1().getT1().getT1();
+            if (dTermArith instanceof DTermArithTerminal) {
+                DTermArithTerminal dTermArithTerminal = (DTermArithTerminal) dTermArith;
+                T terminal = dTermArithTerminal.getTerminal();
+
+                int tKind = terminal.getId().getKind();
+                if (tKind != GrammarSymbols.ID &&
+                        ((tvtKind == GrammarSymbols.BOOL && tKind != GrammarSymbols.TRUE && tKind != GrammarSymbols.FALSE)
+                        || tvtKind == GrammarSymbols.INT && tKind != GrammarSymbols.NUMBER)) {
+                    throw new SemanticException("Você precisa declarar variáveis com o mesmo tipo.");
+                }
+
+                List<DArith> terms = dexpr.getTerms();
+                if (terms != null && !terms.isEmpty()) {
+                    for (DArith dArith : terms) {
+                        for (DTerm dTerm : dArith.getTerms()) {
+                            for (DTermArith dTermArith1 : dTerm.getTerms()) {
+                                if (dTermArith1 instanceof DTermArithTerminal) {
+                                    DTermArithTerminal dtat = (DTermArithTerminal) dTermArith1;
+                                    T t = dtat.getTerminal();
+
+                                    int ttKind = t.getId().getKind();
+                                    if (ttKind != GrammarSymbols.ID &&
+                                            ((tvtKind == GrammarSymbols.BOOL && tKind != GrammarSymbols.TRUE && ttKind != GrammarSymbols.FALSE)
+                                            || tvtKind == GrammarSymbols.INT && ttKind != GrammarSymbols.NUMBER)) {
+                                        throw new SemanticException("Você precisa declarar variáveis com o mesmo tipo.");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         return dv;
     }
@@ -420,21 +474,28 @@ public class Checker implements Visitor {
         DEXPR dexpr = dc.getDexpr();
         dexpr.visit(this, list);
 
-//        boolean hasReturn = false;
+        boolean hasReturn = false;
         List<DB> dbsIf = dc.getDbsIf();
         if (dbsIf != null && !dbsIf.isEmpty()) {
             for (DB db : dbsIf) {
                 db.visit(this, list);
 
-//                if (db instanceof DBCmdDR) {
-//                    hasReturn = true;
-//                }
+                if (db instanceof DBCmdDR) {
+                    hasReturn = true;
+                }
             }
         }
 
-//        if (hasReturn && returnType instanceof TVTVoid) {
-//            throw new SemanticException("Você não pode retornar valores em funções com retorno do tipo VOID.");
-//        }
+        if (!list.isEmpty()) {
+            TVT returnType = (TVT) list.get(list.size() - 1);
+            if (returnType != null) {
+                list.remove(returnType);
+
+                if (hasReturn && returnType instanceof TVTVoid) {
+                    throw new SemanticException("Você não pode retornar valores em funções com retorno do tipo VOID.");
+                }
+            }
+        }
 
         idTable.closeScope();
 
@@ -456,12 +517,27 @@ public class Checker implements Visitor {
         DEXPR dexpr = dw.getDexpr();
         dexpr.visit(this, list);
 
+        boolean hasReturn = false;
         List<DB> dbs = dw.getDbs();
         if (dbs != null && !dbs.isEmpty()) {
             for (DB db : dbs) {
                 db.visit(this, list);
+
+                if (db instanceof DBCmdDR) {
+                    hasReturn = true;
+                }
             }
         }
+
+        TVT returnType = (TVT) list.get(list.size() - 1);
+        if (returnType != null) {
+            list.remove(returnType);
+
+            if (hasReturn && returnType instanceof TVTVoid) {
+                throw new SemanticException("Você não pode retornar valores em funções com retorno do tipo VOID.");
+            }
+        }
+
         idTable.closeScope();
 
         return dw;

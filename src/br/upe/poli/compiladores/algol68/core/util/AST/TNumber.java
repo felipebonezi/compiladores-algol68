@@ -6,7 +6,7 @@ import br.upe.poli.compiladores.algol68.core.scanner.Token;
 
 import java.util.ArrayList;
 
-public class TNumber extends T {
+public class TNumber extends TVT {
 
     public TNumber(Token id) {
         super(id);
