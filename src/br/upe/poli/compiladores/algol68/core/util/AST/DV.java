@@ -1,5 +1,11 @@
 package br.upe.poli.compiladores.algol68.core.util.AST;
 
+import br.upe.poli.compiladores.algol68.core.checker.SemanticException;
+import br.upe.poli.compiladores.algol68.core.checker.Visitor;
+
+import java.util.ArrayList;
+
+
 public class DV extends DVF {
 
     private final TVT tvt;
@@ -8,6 +14,14 @@ public class DV extends DVF {
     public DV(TVT tvt, TID tid) {
         this.tvt = tvt;
         this.tid = tid;
+    }
+
+    public TVT getTvt() {
+        return tvt;
+    }
+
+    public TID getTid() {
+        return tid;
     }
 
     @Override
@@ -19,6 +33,10 @@ public class DV extends DVF {
         builder.append(tid.toString(level + 1));
 
         return builder.toString();
+    }
+
+    public Object visit(Visitor v, ArrayList<AST> list) throws SemanticException {
+        return v.visitDV(this, list);
     }
 
 }

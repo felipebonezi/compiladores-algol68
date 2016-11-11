@@ -31,7 +31,7 @@ public class Parser {
 	 */
 	public Parser() {
 		// Initializes the scanner object
-		this.scanner = new Scanner(Properties.PROGRAM_3);
+		this.scanner = new Scanner(Properties.PROGRAM_4);
 	}
 
 	/**
@@ -117,8 +117,8 @@ public class Parser {
 
         TID tid = new TID(this.currentToken);
         accept(ID);
-		accept(OP_EQUALS); // TODO Token para apenas '='
-		accept(L_PAR);
+        accept(OP_EQUALS); // TODO Token para apenas '='
+        accept(L_PAR);
 
         List<DP> dps = null;
         if (isVarType(this.currentToken.getKind())) {

@@ -189,7 +189,7 @@ public class Scanner {
                     } else if(currentChar == ',') {
                         state = 4;
                         getNextChar();
-                    } else if(currentChar == '>' || currentChar == '<') {
+                    } else if (currentChar == '>' || currentChar == '<') {
                         state = 5;
                         getNextChar();
                     } else if (currentChar == '=') {

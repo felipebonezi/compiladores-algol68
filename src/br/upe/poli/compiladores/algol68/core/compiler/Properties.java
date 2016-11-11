@@ -12,8 +12,9 @@ public interface Properties {
 	public static final String PROGRAM_1 = "program1.alg";
 	public static final String PROGRAM_2 = "program2.alg";
 	public static final String PROGRAM_3 = "program3.alg";
+	public static final String PROGRAM_4 = "program4.alg";
 
 	// The source code file
-	public static final String sourceCodeLocation = PROGRAM_1;
+	public static final String sourceCodeLocation = PROGRAM_2;
 
 }

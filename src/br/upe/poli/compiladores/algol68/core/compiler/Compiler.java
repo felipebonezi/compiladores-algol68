@@ -1,9 +1,12 @@
 package br.upe.poli.compiladores.algol68.core.compiler;
 
+import br.upe.poli.compiladores.algol68.core.checker.Checker;
+import br.upe.poli.compiladores.algol68.core.checker.SemanticException;
 import br.upe.poli.compiladores.algol68.core.parser.Parser;
 import br.upe.poli.compiladores.algol68.core.parser.SyntacticException;
 import br.upe.poli.compiladores.algol68.core.scanner.LexicalException;
 import br.upe.poli.compiladores.algol68.core.util.AST.AST;
+import br.upe.poli.compiladores.algol68.core.util.AST.P;
 import br.upe.poli.compiladores.algol68.core.util.symbolsTable.IdentificationTable;
 
 /**
@@ -30,16 +33,22 @@ public class Compiler {
 		Parser p = new Parser();
 
 		// Creates the AST object
-		AST astRoot;
-		try {
-			// Parses the source code
-			astRoot = p.parse();
-			System.out.println("\n-- AST STRUCTURE --");
-			if ( astRoot != null ) {
-				System.out.println(astRoot.toString(0));
-			}
-		} catch (SyntacticException | LexicalException e) {
-			// Shows the syntactic/lexical error stack trace
+        AST astRoot;
+        try {
+            // Parses the source code
+            astRoot = p.parse();
+            System.out.println("\n-- AST STRUCTURE --");
+            if (astRoot != null) {
+                System.out.println(astRoot.toString(0));
+            }
+
+			Checker checker = new Checker();
+			checker.check((P) astRoot);
+        } catch (SyntacticException | LexicalException e) {
+            // Shows the syntactic/lexical error stack trace
+            e.printStackTrace();
+        } catch (SemanticException e) {
+            // Shows the semantic error stack trace
 			e.printStackTrace();
 		}
 	}

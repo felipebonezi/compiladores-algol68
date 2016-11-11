@@ -1,5 +1,9 @@
 package br.upe.poli.compiladores.algol68.core.util.AST;
 
+import br.upe.poli.compiladores.algol68.core.checker.SemanticException;
+import br.upe.poli.compiladores.algol68.core.checker.Visitor;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,18 +14,18 @@ public class DTermArithFunc extends DTermArith {
     private final TID tid;
     private final List<DA> args;
 
+    public DTermArithFunc(TID tid, List<DA> args) {
+        super();
+        this.tid = tid;
+        this.args = args;
+    }
+
     public TID getTid() {
         return tid;
     }
 
     public List<DA> getArgs() {
         return args;
-    }
-
-    public DTermArithFunc(TID tid, List<DA> args) {
-        super();
-        this.tid = tid;
-        this.args = args;
     }
 
     @Override
@@ -39,4 +43,9 @@ public class DTermArithFunc extends DTermArith {
 
         return builder.toString();
     }
+
+    public Object visit(Visitor v, ArrayList<AST> list) throws SemanticException {
+        return v.visitDTermArithFunc(this, list);
+    }
+
 }

@@ -42,7 +42,7 @@ public class GrammarSymbols {
     public static final int OP_EQUALS = 30;
 
     private static final HashSet<String> PRIVATE_WORDS;
-    private static final Hashtable<String, Integer> PRIVATE_WORDS_TOKENS;
+    public static final Hashtable<String, Integer> PRIVATE_WORDS_TOKENS;
 
     static {
         PRIVATE_WORDS = new HashSet<>();
@@ -63,7 +63,6 @@ public class GrammarSymbols {
         PRIVATE_WORDS.add("proc");
         PRIVATE_WORDS.add("void");
         PRIVATE_WORDS.add("return");
-        PRIVATE_WORDS.add("bool");
         PRIVATE_WORDS.add("true");
         PRIVATE_WORDS.add("false");
 
@@ -85,7 +84,6 @@ public class GrammarSymbols {
         PRIVATE_WORDS_TOKENS.put("proc", PROC);
         PRIVATE_WORDS_TOKENS.put("void", VOID);
         PRIVATE_WORDS_TOKENS.put("return", RETURN);
-        PRIVATE_WORDS_TOKENS.put("bool", BOOL);
         PRIVATE_WORDS_TOKENS.put("true", TRUE);
         PRIVATE_WORDS_TOKENS.put("false", FALSE);
     }

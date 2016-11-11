@@ -1,5 +1,12 @@
 package br.upe.poli.compiladores.algol68.core.util.AST;
 
+
+import br.upe.poli.compiladores.algol68.core.checker.SemanticException;
+import br.upe.poli.compiladores.algol68.core.checker.Visitor;
+
+import java.util.ArrayList;
+
+
 public class DBCmdPrint extends DBCmd {
 
     private final TPrint tPrint;
@@ -28,5 +35,9 @@ public class DBCmdPrint extends DBCmd {
         builder.append(dexpr.toString(level + 1));
 
         return builder.toString();
+    }
+
+    public Object visit(Visitor v, ArrayList<AST> list) throws SemanticException {
+        return v.visitDBCmdPrint(this, list);
     }
 }

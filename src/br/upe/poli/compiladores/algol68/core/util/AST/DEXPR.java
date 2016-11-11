@@ -1,5 +1,9 @@
 package br.upe.poli.compiladores.algol68.core.util.AST;
 
+import br.upe.poli.compiladores.algol68.core.checker.SemanticException;
+import br.upe.poli.compiladores.algol68.core.checker.Visitor;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -43,7 +47,7 @@ public class DEXPR extends AST {
         builder.append(d1.toString(level + 1));
 
         if (terms != null && tops != null) {
-            for (int i = 0;i < terms.size();i++) {
+            for (int i = 0; i < terms.size(); i++) {
                 TOPRel topRel = tops.get(i);
                 DArith dArith = terms.get(i);
 
@@ -53,6 +57,10 @@ public class DEXPR extends AST {
         }
 
         return builder.toString();
+    }
+
+    public Object visit(Visitor v, ArrayList<AST> list) throws SemanticException {
+        return v.visitDEXPR(this, list);
     }
 
 }

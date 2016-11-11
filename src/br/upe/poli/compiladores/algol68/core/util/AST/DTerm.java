@@ -1,5 +1,9 @@
 package br.upe.poli.compiladores.algol68.core.util.AST;
 
+import br.upe.poli.compiladores.algol68.core.checker.SemanticException;
+import br.upe.poli.compiladores.algol68.core.checker.Visitor;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,12 +27,12 @@ public class DTerm extends AST {
         return terms;
     }
 
-    public List<TOPFactor> getTops() {
-        return tops;
-    }
-
     public void setTerms(List<DTermArith> terms) {
         this.terms = terms;
+    }
+
+    public List<TOPFactor> getTops() {
+        return tops;
     }
 
     public void setTops(List<TOPFactor> tops) {
@@ -43,7 +47,7 @@ public class DTerm extends AST {
         builder.append(t1.toString(level + 1));
 
         if (terms != null && tops != null) {
-            for (int i = 0;i < terms.size();i++) {
+            for (int i = 0; i < terms.size(); i++) {
                 TOPFactor topFactor = tops.get(i);
                 builder.append(topFactor.toString(level + 1));
 
@@ -53,6 +57,10 @@ public class DTerm extends AST {
         }
 
         return builder.toString();
+    }
+
+    public Object visit(Visitor v, ArrayList<AST> list) throws SemanticException {
+        return v.visitDTerm(this, list);
     }
 
 }

@@ -1,6 +1,11 @@
 package br.upe.poli.compiladores.algol68.core.util.AST;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import br.upe.poli.compiladores.algol68.core.checker.SemanticException;
+import br.upe.poli.compiladores.algol68.core.checker.Visitor;
+
 
 public class DC extends AST {
 
@@ -49,6 +54,10 @@ public class DC extends AST {
         }
 
         return builder.toString();
+    }
+
+    public Object visit(Visitor v, ArrayList<AST> list) throws SemanticException {
+        return v.visitDC(this, list);
     }
 
 }

@@ -2,9 +2,11 @@ package br.upe.poli.compiladores.algol68.core.util.symbolsTable;
 
 import br.upe.poli.compiladores.algol68.core.checker.SemanticException;
 import br.upe.poli.compiladores.algol68.core.util.AST.AST;
+import br.upe.poli.compiladores.algol68.helpers.GrammarSymbols;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -26,22 +28,25 @@ public class IdentificationTable {
 	 */
 	public IdentificationTable() {
 		// Creates the mapping table
-		this.table = new HashMap<Key, Attribute>();
+		this.table = new HashMap<>();
 
 		// Puts in the table each language reserved word
-		this.table.put(new Key(0, "void"), null);
-		this.table.put(new Key(0, "int"), null);
-		this.table.put(new Key(0, "double"), null);
-		this.table.put(new Key(0, "boolean"), null);
-		this.table.put(new Key(0, "if"), null);
-		this.table.put(new Key(0, "else"), null);
-		this.table.put(new Key(0, "while"), null);
-		this.table.put(new Key(0, "return"), null);
-		this.table.put(new Key(0, "break"), null);
-		this.table.put(new Key(0, "continue"), null);
-		this.table.put(new Key(0, "println"), null);
-		this.table.put(new Key(0, "false"), null);
-		this.table.put(new Key(0, "true"), null);
+		this.table.put(new Key(GrammarSymbols.INT, "int"), null);
+		this.table.put(new Key(GrammarSymbols.BOOL, "bool"), null);
+		this.table.put(new Key(GrammarSymbols.IF, "if"), null);
+		this.table.put(new Key(GrammarSymbols.THEN, "then"), null);
+		this.table.put(new Key(GrammarSymbols.ELSE, "else"), null);
+		this.table.put(new Key(GrammarSymbols.FI, "fi"), null);
+		this.table.put(new Key(GrammarSymbols.WHILE, "while"), null);
+		this.table.put(new Key(GrammarSymbols.DO, "do"), null);
+		this.table.put(new Key(GrammarSymbols.OD, "od"), null);
+		this.table.put(new Key(GrammarSymbols.BREAK, "break"), null);
+		this.table.put(new Key(GrammarSymbols.CONTINUE, "continue"), null);
+		this.table.put(new Key(GrammarSymbols.PRINT, "print"), null);
+		this.table.put(new Key(GrammarSymbols.VOID, "void"), null);
+		this.table.put(new Key(GrammarSymbols.RETURN, "return"), null);
+		this.table.put(new Key(GrammarSymbols.TRUE, "true"), null);
+		this.table.put(new Key(GrammarSymbols.FALSE, "false"), null);
 
 		// Initializes currentScope to 0 (global)
 		this.currentScope = 0;
@@ -92,7 +97,7 @@ public class IdentificationTable {
 		}
 		
 		// If does not exist
-		if ( hasFound == false ) {
+		if (!hasFound) {
 			// Adds the new entry
 			Key key = new Key(this.currentScope, id);
 			this.table.put(key, new Attribute(node));
