@@ -125,6 +125,14 @@ public class Checker implements Visitor {
                 }
 
                 hasReturn = true;
+            } else if (db instanceof DBCmdDC) {
+                DBCmdDC dbCmdDC = (DBCmdDC) db;
+                DC dc = dbCmdDC.getDc();
+                String type = dc.getType();
+
+                if ("TRUE".equalsIgnoreCase(type)) {
+                    hasReturn = true;
+                }
             }
         }
         idTable.closeScope();
@@ -571,6 +579,8 @@ public class Checker implements Visitor {
 
             idTable.closeScope();
         }
+
+        dc.setType(String.valueOf(hasReturn));
 
         return dc;
     }

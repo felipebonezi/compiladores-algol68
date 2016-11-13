@@ -18,9 +18,9 @@ BEGIN
         BEGIN
             IF a > b + 2 THEN
                 RETURN FALSE;
+            ELSE
+                a := b * 2;
             FI;
-
-            RETURN TRUE;
         END
 
 END
