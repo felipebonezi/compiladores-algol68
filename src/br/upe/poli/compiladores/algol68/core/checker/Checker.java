@@ -313,13 +313,17 @@ public class Checker implements Visitor {
     @Override
     public Object visitDArith(DArith dArith, ArrayList<AST> list) throws SemanticException {
         DTerm dTerm = dArith.getT1();
-        dTerm.visit(this, list);
+        T terminal = (T) dTerm.visit(this, list);
 
         List<DTerm> terms = dArith.getTerms();
         List<TOPBasic> topBasics = dArith.getTops();
         if (terms != null && !terms.isEmpty() && !topBasics.isEmpty()) {
             for (DTerm term : terms) {
-                term.visit(this, list);
+                T terminalTerm = (T) term.visit(this, list);
+
+                if (terminal.getClass() != terminalTerm.getClass()) {
+                    throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", terminal.getId().getSpelling(), terminalTerm.getId().getSpelling()));
+                }
             }
 
             for (TOPBasic topBasic : topBasics) {
@@ -327,19 +331,23 @@ public class Checker implements Visitor {
             }
         }
 
-        return dArith;
+        return terminal;
     }
 
     @Override
     public Object visitDTerm(DTerm dTerm, ArrayList<AST> list) throws SemanticException {
         DTermArith dTermArith = dTerm.getT1();
-        dTermArith.visit(this, list);
+        T terminal = (T) dTermArith.visit(this, list);
 
         List<DTermArith> terms = dTerm.getTerms();
         List<TOPFactor> topFactors = dTerm.getTops();
         if (terms != null && !terms.isEmpty() && !topFactors.isEmpty()) {
             for (DTermArith term : terms) {
-                term.visit(this, list);
+                T terminalTerm = (T) term.visit(this, list);
+
+                if (terminal.getClass() != terminalTerm.getClass()) {
+                    throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", terminal.getId().getSpelling(), terminalTerm.getId().getSpelling()));
+                }
             }
 
             for (TOPFactor topFactor : topFactors) {
@@ -347,7 +355,7 @@ public class Checker implements Visitor {
             }
         }
 
-        return dTerm;
+        return terminal;
     }
 
     @Override
@@ -358,9 +366,16 @@ public class Checker implements Visitor {
         } else if (dTermArith instanceof DTermArithFunc) {
             DTermArithFunc dTermArithFunc = (DTermArithFunc) dTermArith;
             dTermArithFunc.visit(this, list);
+
+            AST retrieve = idTable.retrieve(dTermArithFunc.getTid().getId().getSpelling());
+            if (retrieve != null && retrieve instanceof DF) {
+                DF df = (DF) retrieve;
+                return df.getReturnType();
+            }
         } else if (dTermArith instanceof DTermArithTerminal) {
             DTermArithTerminal dTermArithTerminal = (DTermArithTerminal) dTermArith;
             dTermArithTerminal.visit(this, list);
+            return dTermArithTerminal.getTerminal();
         }
 
         return dTermArith;
@@ -386,7 +401,14 @@ public class Checker implements Visitor {
             }
         }
 
-        return dTermArithFunc;
+        String spelling = dTermArithFunc.getTid().getId().getSpelling();
+        AST retrieve = idTable.retrieve(spelling);
+        if (retrieve != null && retrieve instanceof DF) {
+            DF df = (DF) retrieve;
+            return df.getReturnType();
+        } else {
+            throw new SemanticException(String.format("Você está chamando a função '%s' que não foi declarada.", spelling));
+        }
     }
 
     @Override
@@ -394,7 +416,12 @@ public class Checker implements Visitor {
         T terminal = dTermArithTerminal.getTerminal();
         terminal.visit(this, list);
 
-        return null;
+        String spelling = terminal.getId().getSpelling();
+        if (terminal instanceof TID && idTable.retrieve(spelling) == null) {
+            throw new SemanticException(String.format("Você não declarou a variável '%s' no escopo.", spelling));
+        }
+
+        return terminal;
     }
 
     @Override
@@ -514,13 +541,17 @@ public class Checker implements Visitor {
     @Override
     public Object visitDEXPR(DEXPR dexpr, ArrayList<AST> list) throws SemanticException {
         DArith dArith = dexpr.getD1();
-        dArith.visit(this, list);
+        T terminal = (T) dArith.visit(this, list);
 
         List<DArith> terms = dexpr.getTerms();
         List<TOPRel> tops = dexpr.getTops();
         if (terms != null && !terms.isEmpty() && !tops.isEmpty()) {
             for (DArith term : terms) {
-                term.visit(this, list);
+                T terminalTerm = (T) term.visit(this, list);
+
+                if (terminal.getClass() != terminalTerm.getClass()) {
+                    throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", terminal.getId().getSpelling(), terminalTerm.getId().getSpelling()));
+                }
             }
 
             for (TOPRel topRel : tops) {
@@ -535,6 +566,16 @@ public class Checker implements Visitor {
     public Object visitDIdAtri(DIdAtri dIdAtri, ArrayList<AST> list) throws SemanticException {
         TID id = dIdAtri.getId();
         id.visit(this, list);
+
+        if (dIdAtri instanceof DIdAtriDA) {
+            DIdAtriDA dIdAtriDA = (DIdAtriDA) dIdAtri;
+            dIdAtriDA.visit(this, list);
+
+
+        } else {
+            DidAtriExpr didAtriExpr = (DidAtriExpr) dIdAtri;
+            didAtriExpr.visit(this, list);
+        }
 
         return dIdAtri;
     }

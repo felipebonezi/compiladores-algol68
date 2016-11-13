@@ -1,11 +1,12 @@
 BEGIN
 
-    PROC funcaox4 = (INT param1, INT param2, BOOL param3) BOOL :
+    PROC funcao = (INT param1, INT param2, BOOL param3) VOID :
         BEGIN
         END
 
-    PROC funcao = (INT param1, INT param2, BOOL param3) BOOL :
+    PROC chamarFuncao = (INT param1, INT param2, BOOL param3) BOOL :
         BEGIN
+            BOOL x := funcao();
         END
 
 END

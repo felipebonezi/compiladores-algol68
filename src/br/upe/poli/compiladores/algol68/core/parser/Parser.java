@@ -246,10 +246,13 @@ public class Parser {
         DIdAtri dIdAtri;
         if (this.currentToken.getKind() == L_PAR) {
             acceptIt();
-            List<DA> das = parseDecArgs();
-            accept(R_PAR);
+
+            List<DA> das = null;
+            if (this.currentToken.getKind() != R_PAR)
+                das = parseDecArgs();
 
             dIdAtri = new DIdAtriDA(tid, das);
+            accept(R_PAR);
         } else {
             accept(ASSIGN);
             DEXPR dexpr = parseDecExpr();
@@ -443,12 +446,12 @@ public class Parser {
                 break;
 
             default:
-                accept(L_PAR);
+//                accept(L_PAR);
 
                 DEXPR dexpr = parseDecExpr();
                 dTermArith = new DTermArithDExpr(dexpr);
 
-                accept(R_PAR);
+//                accept(R_PAR);
                 break;
         }
 
@@ -463,9 +466,11 @@ public class Parser {
         if (this.currentToken.getKind() == L_PAR) {
             acceptIt();
 
-            List<DA> das = parseDecArgs();
-            dTermArith = new DTermArithFunc(tid, das);
+            List<DA> das = null;
+            if (this.currentToken.getKind() != R_PAR)
+                das = parseDecArgs();
 
+            dTermArith = new DTermArithFunc(tid, das);
             accept(R_PAR);
         } else {
             dTermArith = new DTermArithTerminal(tid);
