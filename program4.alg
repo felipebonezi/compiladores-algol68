@@ -1,13 +1,26 @@
 BEGIN
 
+    INT a := 2;
+    INT b := 3;
+
     PROC funcao = (INT param1, INT param2, BOOL param3) INT :
         BEGIN
-            RETURN 1 + 2;
+            WHILE param1 > param2
+                DO
+                    INT x := 1;
+                    RETURN x * 20;
+                OD;
+
+            RETURN 1;
         END
 
     PROC chamarFuncao = (INT param1, INT param2, BOOL param3) BOOL :
         BEGIN
-            BOOL x := funcao(1, 2, 3) >= 1;
+            IF a > b + 2 THEN
+                RETURN FALSE;
+            FI;
+
+            RETURN TRUE;
         END
 
 END
