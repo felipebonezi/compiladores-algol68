@@ -121,6 +121,8 @@ public class Checker implements Visitor {
 
         if (hasReturn && returnType instanceof TVTVoid) {
             throw new SemanticException("Você não pode retornar valores em funções com retorno do tipo VOID.");
+        } else if (bodies.isEmpty()) {
+            throw new SemanticException(String.format("Você não declarou nenhum retorno para a função '%s'.", spelling));
         }
 
         return df;
