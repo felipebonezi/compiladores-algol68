@@ -72,13 +72,22 @@ public class Checker implements Visitor {
 
     @Override
     public Object visitDF(DF df, ArrayList<AST> list) throws SemanticException {
-        // region Scope
-        idTable.openScope();
-
         TID tid = df.getTid();
         tid.visit(this, list);
 
         Token token = tid.getId();
+        String spelling = token.getSpelling();
+        AST retrieve = idTable.retrieve(spelling);
+        if (retrieve != null && retrieve instanceof DF) {
+            DF dfRetrived = (DF) retrieve;
+
+            if (dfRetrived.equals(df)) {
+                throw new SemanticException(String.format("A função '%s' já está declarada no programa com a mesma assinatura.", spelling));
+            }
+        } else {
+            idTable.enter(spelling, df);
+        }
+
         if (tid.getAssignedExpr() != null) {
             throw new SemanticException("Você não pode declarar uma função como variável.");
         }
@@ -113,9 +122,6 @@ public class Checker implements Visitor {
         if (hasReturn && returnType instanceof TVTVoid) {
             throw new SemanticException("Você não pode retornar valores em funções com retorno do tipo VOID.");
         }
-
-        idTable.closeScope();
-        // endregion
 
         return df;
     }
@@ -410,7 +416,6 @@ public class Checker implements Visitor {
     public Object visitDV(DV dv, ArrayList<AST> list) throws SemanticException {
         TVT tvt = dv.getTvt();
         tvt.visit(this, list);
-        int tvtKind = tvt.getId().getKind();
 
         TID tid = dv.getTid();
         tid.visit(this, list);
@@ -425,44 +430,7 @@ public class Checker implements Visitor {
 
         DEXPR dexpr = tid.getAssignedExpr();
         if (dexpr != null) {
-//        List<TOPRel> tops = dexpr.getTops();
-//        if (tops != null && !tops.isEmpty()) {
-//            tvtKindExp = GrammarSymbols.NUMBER;
-//        }
-
-            DTermArith dTermArith = dexpr.getD1().getT1().getT1();
-            if (dTermArith instanceof DTermArithTerminal) {
-                DTermArithTerminal dTermArithTerminal = (DTermArithTerminal) dTermArith;
-                T terminal = dTermArithTerminal.getTerminal();
-
-                int tKind = terminal.getId().getKind();
-                if (tKind != GrammarSymbols.ID &&
-                        ((tvtKind == GrammarSymbols.BOOL && tKind != GrammarSymbols.TRUE && tKind != GrammarSymbols.FALSE)
-                        || tvtKind == GrammarSymbols.INT && tKind != GrammarSymbols.NUMBER)) {
-                    throw new SemanticException("Você precisa declarar variáveis com o mesmo tipo.");
-                }
-
-                List<DArith> terms = dexpr.getTerms();
-                if (terms != null && !terms.isEmpty()) {
-                    for (DArith dArith : terms) {
-                        for (DTerm dTerm : dArith.getTerms()) {
-                            for (DTermArith dTermArith1 : dTerm.getTerms()) {
-                                if (dTermArith1 instanceof DTermArithTerminal) {
-                                    DTermArithTerminal dtat = (DTermArithTerminal) dTermArith1;
-                                    T t = dtat.getTerminal();
-
-                                    int ttKind = t.getId().getKind();
-                                    if (ttKind != GrammarSymbols.ID &&
-                                            ((tvtKind == GrammarSymbols.BOOL && tKind != GrammarSymbols.TRUE && ttKind != GrammarSymbols.FALSE)
-                                            || tvtKind == GrammarSymbols.INT && ttKind != GrammarSymbols.NUMBER)) {
-                                        throw new SemanticException("Você precisa declarar variáveis com o mesmo tipo.");
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            dexpr.visit(this, list);
         }
 
         return dv;
