@@ -413,9 +413,9 @@ public class Checker implements Visitor {
     @Override
     public Object visitDTermArithDExpr(DTermArithDExpr dTermArithDExpr, ArrayList<AST> list) throws SemanticException {
         DEXPR dexpr = dTermArithDExpr.getDexpr();
-        dexpr.visit(this, list);
+        T terminal = (T) dexpr.visit(this, list);
 
-        return dTermArithDExpr;
+        return terminal;
     }
 
     @Override
@@ -492,6 +492,16 @@ public class Checker implements Visitor {
                 if ("BOOL".equals(dexpr.getType())) {
                     if (!(tvt instanceof TVTBool)) {
                         throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", tvt.getId().getSpelling(), dexpr.getType()));
+                    }
+                } else if (terminal instanceof TID) {
+                    AST retrieve = idTable.retrieve(terminal.getId().getSpelling());
+                    if (retrieve != null && retrieve instanceof DV) {
+                        DV dv1 = (DV) retrieve;
+                        TVT tvt1 = dv1.getTvt();
+
+                        if (tvt1.getClass() != tvt.getClass()) {
+                            throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", tvt.getId().getSpelling(), tvt1.getId().getSpelling()));
+                        }
                     }
                 } else if ((tvt instanceof TVTBool && !(terminal instanceof TBool))
                         || (tvt instanceof TVTInt && !(terminal instanceof TNumber))) {
@@ -711,10 +721,6 @@ public class Checker implements Visitor {
         AST retrieve = idTable.retrieve(spelling);
         if (retrieve != null && retrieve instanceof DF) {
             DF df = (DF) retrieve;
-            if (df.getReturnType() instanceof TVTVoid) {
-                throw new SemanticException("Você não pode retornar valores em funções com retorno do tipo VOID.");
-            }
-
             List<DP> params = df.getParams();
 
             if (params != null && das != null && params.size() == das.size()) {

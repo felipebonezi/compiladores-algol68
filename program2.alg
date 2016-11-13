@@ -1,10 +1,10 @@
 BEGIN
 
-    INT a := 11;
-    INT b := 300, c := 2100;
+    INT x := 11;
+    INT y := 300, z := 2100;
 
     # Somatório das variáveis
-    INT sum := a + (b + c);
+    INT sum := x + (y + z);
 
     PROC cond = (INT a, INT b, INT c) VOID :
         BEGIN
@@ -36,12 +36,13 @@ BEGIN
             FI;
         END
 
-    PROC taken = (INT i, j, k) VOID:
+    PROC taken = (INT i, j, k) INT:
         BEGIN
             IF i <= j THEN
                 i := k * j;
+                RETURN i;
             ELSE
-                taken (taken (i - 1, j, k), taken (j - 1, k, i), taken (k - 1, i, j));
+                RETURN taken (taken (i - 1, j, k), taken (j - 1, k, i), taken (k - 1, i, j));
             FI;
         END
 

@@ -32,7 +32,7 @@ public class Parser {
 	 */
 	public Parser() {
 		// Initializes the scanner object
-		this.scanner = new Scanner(Properties.PROGRAM_4);
+		this.scanner = new Scanner(Properties.PROGRAM_2);
 	}
 
 	/**
@@ -447,12 +447,12 @@ public class Parser {
                 break;
 
             default:
-//                accept(L_PAR);
+                accept(L_PAR);
 
                 DEXPR dexpr = parseDecExpr();
                 dTermArith = new DTermArithDExpr(dexpr);
 
-//                accept(R_PAR);
+                accept(R_PAR);
                 break;
         }
 
