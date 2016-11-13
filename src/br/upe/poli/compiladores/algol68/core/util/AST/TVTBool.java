@@ -6,21 +6,22 @@ import br.upe.poli.compiladores.algol68.core.scanner.Token;
 
 import java.util.ArrayList;
 
-public class TNumber extends T {
+public class TVTBool extends TVT {
 
-    public TNumber(Token id) {
-        super(id);
+    public TVTBool(Token token) {
+        super(token);
     }
 
     @Override
     public String toString(int level) {
         StringBuilder builder = new StringBuilder();
-        toStringHelper(builder, "TNumber", this, level);
+        toStringHelper(builder, "TVTBool", this, level);
         return builder.toString();
     }
 
+    @Override
     public Object visit(Visitor v, ArrayList<AST> list) throws SemanticException {
-        return v.visitTNumber(this, list);
+        return v.visitTVT(this, list);
     }
 
 }

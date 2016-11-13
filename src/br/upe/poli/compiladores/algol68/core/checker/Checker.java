@@ -457,7 +457,12 @@ public class Checker implements Visitor {
 
         DEXPR dexpr = tid.getAssignedExpr();
         if (dexpr != null) {
-            dexpr.visit(this, list);
+            T terminal = (T) dexpr.visit(this, list);
+
+            if ((tvt instanceof TVTBool && !(terminal instanceof TBool))
+                    || (tvt instanceof TVTInt && !(terminal instanceof TNumber))) {
+                throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", tvt.getId().getSpelling(), terminal.getId().getSpelling()));
+            }
         }
 
         return dv;
@@ -559,7 +564,7 @@ public class Checker implements Visitor {
             }
         }
 
-        return dexpr;
+        return terminal;
     }
 
     @Override
@@ -599,9 +604,9 @@ public class Checker implements Visitor {
     @Override
     public Object visitDidAtriExpr(DidAtriExpr didAtriExpr, ArrayList<AST> list) throws SemanticException {
         DEXPR dexpr = didAtriExpr.getDexpr();
-        dexpr.visit(this, list);
+        T terminal = (T) dexpr.visit(this, list);
 
-        return didAtriExpr;
+        return terminal;
     }
 
     @Override

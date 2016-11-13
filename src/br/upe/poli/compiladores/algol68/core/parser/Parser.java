@@ -5,6 +5,7 @@ import br.upe.poli.compiladores.algol68.core.scanner.LexicalException;
 import br.upe.poli.compiladores.algol68.core.scanner.Scanner;
 import br.upe.poli.compiladores.algol68.core.scanner.Token;
 import br.upe.poli.compiladores.algol68.core.util.AST.*;
+import br.upe.poli.compiladores.algol68.helpers.GrammarSymbols;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -129,7 +130,7 @@ public class Parser {
 
         TVT tvt;
         if (isVarType(this.currentToken.getKind())) {
-            tvt = new TVT(this.currentToken);
+            tvt = this.currentToken.getKind() == GrammarSymbols.INT ? new TVTInt(this.currentToken) : new TVTBool(this.currentToken);
             acceptIt();
         } else {
             tvt = new TVTVoid(this.currentToken);
@@ -147,7 +148,7 @@ public class Parser {
     private List<DP> parseDecParam() throws LexicalException, SyntacticException {
         List<DP> dps = new ArrayList<>();
 
-        TVT tvt = new TVT(this.currentToken);
+        TVT tvt = this.currentToken.getKind() == GrammarSymbols.INT ? new TVTInt(this.currentToken) : new TVTBool(this.currentToken);
         acceptIt();
 
         TID tid1 = new TID(this.currentToken);
@@ -158,7 +159,7 @@ public class Parser {
             acceptIt();
 
             if (isVarType(this.currentToken.getKind())) {
-                tvt = new TVT(this.currentToken);
+                tvt = this.currentToken.getKind() == GrammarSymbols.INT ? new TVTInt(this.currentToken) : new TVTBool(this.currentToken);
                 acceptIt();
             }
 
@@ -310,7 +311,7 @@ public class Parser {
 
         List<DV> dvs = new ArrayList<>();
 
-        TVT tvt = new TVT(this.currentToken);
+        TVT tvt = this.currentToken.getKind() == GrammarSymbols.INT ? new TVTInt(this.currentToken) : new TVTBool(this.currentToken);
         acceptIt();
 
         TID tid = new TID(this.currentToken);
