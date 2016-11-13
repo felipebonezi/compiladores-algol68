@@ -99,10 +99,10 @@ public class Checker implements Visitor {
             }
         }
 
-        TVT returnType = df.getReturnType();
-        returnType.visit(this, list);
+        TVT tvt = df.getReturnType();
+        tvt.visit(this, list);
 
-        list.add(returnType);
+        list.add(tvt);
 
         // region Scope
         idTable.openScope();
@@ -113,15 +113,25 @@ public class Checker implements Visitor {
             db.visit(this, list);
 
             if (db instanceof DBCmdDR) {
+                if (tvt instanceof TVTVoid) {
+                    throw new SemanticException("Você não pode retornar valores em funções com retorno do tipo VOID.");
+                }
+
+                DBCmdDR dbCmdDR = (DBCmdDR) db;
+                DEXPR dexpr = dbCmdDR.getDr().getDexpr();
+                String type = dexpr.getType();
+                if (("BOOL".equals(type) && tvt instanceof TVTInt)
+                        || ("INT".equals(type) && tvt instanceof TVTBool)) {
+                    throw new SemanticException(String.format("Os retornos da função '%s' são de tipos diferentes ('%s' != '%s').", spelling, type, tvt.getId().getSpelling()));
+                }
+
                 hasReturn = true;
             }
         }
         idTable.closeScope();
         // endregion
 
-        if (hasReturn && returnType instanceof TVTVoid) {
-            throw new SemanticException("Você não pode retornar valores em funções com retorno do tipo VOID.");
-        } else if (bodies.isEmpty()) {
+        if (hasReturn && bodies.isEmpty()) {
             throw new SemanticException(String.format("Você não declarou nenhum retorno para a função '%s'.", spelling));
         }
 
@@ -582,6 +592,10 @@ public class Checker implements Visitor {
                 topRel.visit(this, list);
             }
 
+            dexpr.setType("BOOL");
+        } else if (terminal instanceof TNumber || terminal instanceof TVTInt) {
+            dexpr.setType("INT");
+        } else {
             dexpr.setType("BOOL");
         }
 
