@@ -321,7 +321,11 @@ public class Checker implements Visitor {
             for (DTerm term : terms) {
                 T terminalTerm = (T) term.visit(this, list);
 
-                if (terminal.getClass() != terminalTerm.getClass()) {
+                if (terminal instanceof TVTVoid || terminalTerm instanceof TVTVoid
+                        || (terminalTerm instanceof TVTBool && !(terminal instanceof TBool))
+                        || (terminalTerm instanceof TVTInt && !(terminal instanceof TNumber))
+                        || (terminal instanceof TVTBool && !(terminalTerm instanceof TBool))
+                        || (terminal instanceof TVTInt && !(terminalTerm instanceof TNumber))) {
                     throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", terminal.getId().getSpelling(), terminalTerm.getId().getSpelling()));
                 }
             }
@@ -345,7 +349,11 @@ public class Checker implements Visitor {
             for (DTermArith term : terms) {
                 T terminalTerm = (T) term.visit(this, list);
 
-                if (terminal.getClass() != terminalTerm.getClass()) {
+                if (terminal instanceof TVTVoid || terminalTerm instanceof TVTVoid
+                        || (terminalTerm instanceof TVTBool && !(terminal instanceof TBool))
+                        || (terminalTerm instanceof TVTInt && !(terminal instanceof TNumber))
+                        || (terminal instanceof TVTBool && !(terminalTerm instanceof TBool))
+                        || (terminal instanceof TVTInt && !(terminalTerm instanceof TNumber))) {
                     throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", terminal.getId().getSpelling(), terminalTerm.getId().getSpelling()));
                 }
             }
@@ -459,9 +467,15 @@ public class Checker implements Visitor {
         if (dexpr != null) {
             T terminal = (T) dexpr.visit(this, list);
 
-            if ((tvt instanceof TVTBool && !(terminal instanceof TBool))
-                    || (tvt instanceof TVTInt && !(terminal instanceof TNumber))) {
-                throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", tvt.getId().getSpelling(), terminal.getId().getSpelling()));
+            if (tvt.getClass() != terminal.getClass()) {
+                if ("BOOL".equals(dexpr.getType())) {
+                    if (!(tvt instanceof TVTBool)) {
+                        throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", tvt.getId().getSpelling(), dexpr.getType()));
+                    }
+                } else if ((tvt instanceof TVTBool && !(terminal instanceof TBool))
+                        || (tvt instanceof TVTInt && !(terminal instanceof TNumber))) {
+                    throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", tvt.getId().getSpelling(), terminal.getId().getSpelling()));
+                }
             }
         }
 
@@ -554,7 +568,10 @@ public class Checker implements Visitor {
             for (DArith term : terms) {
                 T terminalTerm = (T) term.visit(this, list);
 
-                if (terminal.getClass() != terminalTerm.getClass()) {
+                if (terminal instanceof TVTVoid || terminalTerm instanceof TVTVoid
+                        || terminalTerm instanceof TVTBool || terminal instanceof TBool
+                        || terminalTerm instanceof TBool || terminal instanceof TVTBool
+                        ) {
                     throw new SemanticException(String.format("As variáveis são de tipos diferentes ('%s' != '%s').", terminal.getId().getSpelling(), terminalTerm.getId().getSpelling()));
                 }
             }
@@ -562,6 +579,8 @@ public class Checker implements Visitor {
             for (TOPRel topRel : tops) {
                 topRel.visit(this, list);
             }
+
+            dexpr.setType("BOOL");
         }
 
         return terminal;
@@ -575,8 +594,6 @@ public class Checker implements Visitor {
         if (dIdAtri instanceof DIdAtriDA) {
             DIdAtriDA dIdAtriDA = (DIdAtriDA) dIdAtri;
             dIdAtriDA.visit(this, list);
-
-
         } else {
             DidAtriExpr didAtriExpr = (DidAtriExpr) dIdAtri;
             didAtriExpr.visit(this, list);
@@ -596,9 +613,9 @@ public class Checker implements Visitor {
     @Override
     public Object visitDA(DA da, ArrayList<AST> list) throws SemanticException {
         DEXPR dexpr = da.getDexpr();
-        dexpr.visit(this, list);
+        T terminal = (T) dexpr.visit(this, list);
 
-        return da;
+        return terminal;
     }
 
     @Override
@@ -612,10 +629,35 @@ public class Checker implements Visitor {
     @Override
     public Object visitDIdAtriDA(DIdAtriDA dIdAtriDA, ArrayList<AST> list) throws SemanticException {
         List<DA> das = dIdAtriDA.getDas();
-        if (das != null && !das.isEmpty()) {
-            for (DA da : das) {
-                da.visit(this, list);
+
+        String spelling = dIdAtriDA.getId().getId().getSpelling();
+        AST retrieve = idTable.retrieve(spelling);
+        if (retrieve != null && retrieve instanceof DF) {
+            DF df = (DF) retrieve;
+            if (df.getReturnType() instanceof TVTVoid) {
+                throw new SemanticException("Você não pode retornar valores em funções com retorno do tipo VOID.");
             }
+
+            List<DP> params = df.getParams();
+
+            if (params != null && das != null && params.size() == das.size()) {
+                for (int i = 0;i < params.size();i++) {
+                    DP dp = params.get(i);
+                    DA da = das.get(i);
+
+                    TVT tvt = dp.getVarType();
+                    T terminal = (T) da.visit(this, list);
+
+                    if ((tvt instanceof TVTBool && !(terminal instanceof TBool))
+                            || (tvt instanceof TVTInt && !(terminal instanceof TNumber))) {
+                        throw new SemanticException(String.format("As declaração de argumentos são de tipos diferentes ('%s' != '%s') para o parâmetro '%s' da função '%s'.", tvt.getId().getSpelling(), terminal.getId().getSpelling(), dp.getTid().getId().getSpelling(), spelling));
+                    }
+                }
+            } else {
+                throw new SemanticException(String.format("Você está chamando a função '%s' que não foi declarada com estes argumentos.", spelling));
+            }
+        } else {
+            throw new SemanticException(String.format("Você está chamando a função '%s' que não foi declarada.", spelling));
         }
 
         return dIdAtriDA;
