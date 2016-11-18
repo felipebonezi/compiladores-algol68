@@ -114,6 +114,7 @@ BEGIN
                     BOOL j := true;
                     BOOL k := false;
 
+                    BOOL g := g > a;
                     BOOL l := g > a;
                     BOOL m := e >= b;
                     BOOL n := e < g;

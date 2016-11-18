@@ -32,7 +32,7 @@ public class Parser {
 	 */
 	public Parser() {
 		// Initializes the scanner object
-		this.scanner = new Scanner(Properties.PROGRAM_2);
+		this.scanner = new Scanner(Properties.PROGRAM_3);
 	}
 
 	/**
